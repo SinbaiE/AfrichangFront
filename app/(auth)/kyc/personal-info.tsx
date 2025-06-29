@@ -93,7 +93,7 @@ export default function PersonalInfoScreen() {
     if (validateForm()) {
       updatePersonalInfo(formData)
       nextStep()
-      router.push("/(auth)/kyc/document-uplaod")
+      router.push("/(auth)/kyc/document-upload")
     }
   }
 
