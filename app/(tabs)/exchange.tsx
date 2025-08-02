@@ -82,7 +82,7 @@ export default function ExchangeScreen() {
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
-        <LinearGradient colors={["#FFC107", "#FF9800"]} style={styles.header}>
+        <LinearGradient colors={["#667eea", "#764ba2"]} style={styles.header}>
           <Text style={styles.headerTitle}>Échange de devises</Text>
           <Text style={styles.headerSubtitle}>Échangez vos devises africaines instantanément</Text>
         </LinearGradient>

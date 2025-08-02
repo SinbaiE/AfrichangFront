@@ -10,9 +10,11 @@ interface WalletContextType {
   currencies: Currency[]
   isLoading: boolean
   totalBalanceUSD: number
+  refreshWallets: () => Promise<void>
   createWallet: (currencyCode: string) => Promise<void>
   refreshBalances: () => Promise<void>
   getWalletByCurrency: (currencyCode: string) => Wallet | undefined
+  getTotalBalance: () => number
 }
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined)
@@ -26,12 +28,12 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (isAuthenticated) {
-      loadWallets()
+      refreshWallets()
       loadCurrencies()
     }
   }, [isAuthenticated])
 
-  const loadWallets = async () => {
+  const refreshWallets = async () => {
     setIsLoading(true)
     try {
       const token = await SecureStore.getItemAsync("auth_token")
@@ -71,7 +73,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       })
 
       if (response.ok) {
-        await loadWallets()
+        await refreshWallets()
       }
     } catch (error) {
       throw error
@@ -79,11 +81,15 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   }
 
   const refreshBalances = async () => {
-    await loadWallets()
+    await refreshWallets()
   }
 
   const getWalletByCurrency = (currencyCode: string) => {
     return wallets.find((wallet) => wallet.currency.code === currencyCode)
+  }
+
+  const getTotalBalance = () => {
+    return wallets.reduce((sum, wallet) => sum + wallet.balance, 0)
   }
 
   return (
@@ -93,9 +99,11 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         currencies,
         isLoading,
         totalBalanceUSD,
+        refreshWallets,
         createWallet,
         refreshBalances,
         getWalletByCurrency,
+        getTotalBalance,
       }}
     >
       {children}

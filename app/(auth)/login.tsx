@@ -24,15 +24,15 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false)
 
   const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert("Erreur", "Veuillez remplir tous les champs")
-      return
-    }
+    // if (!email || !password) {
+    //   Alert.alert("Erreur", "Veuillez remplir tous les champs")
+    //   return
+    // }
 
-    setIsLoading(true)
+    // setIsLoading(true)
     try {
-      await login(email, password)
-      router.replace("/(tabs)")
+      // await login(email, password)
+      router.replace("/(auth)/dasboardUsers")
     } catch (error: any) {
       Alert.alert("Erreur de connexion", error.message)
     } finally {
@@ -42,7 +42,7 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <LinearGradient colors={["#FFC107", "#FF9800"]} style={styles.header}>
+      <LinearGradient colors={["#667eea", "#764ba2"]} style={styles.header}>
         <View style={styles.logoContainer}>
           <Text style={styles.logoText}>🌍</Text>
         </View>
@@ -90,7 +90,7 @@ export default function LoginScreen() {
           onPress={handleLogin}
           disabled={isLoading}
         >
-          <LinearGradient colors={["#FFC107", "#FF9800"]} style={styles.loginButtonGradient}>
+          <LinearGradient colors={["#667eea", "#764ba2"]} style={styles.loginButtonGradient}>
             {isLoading ? <ActivityIndicator color="#fff" /> : <Text style={styles.loginButtonText}>Se connecter</Text>}
           </LinearGradient>
         </TouchableOpacity>
@@ -102,7 +102,7 @@ export default function LoginScreen() {
         </View>
 
         <TouchableOpacity style={styles.biometricButton}>
-          <Ionicons name="finger-print-outline" size={24} color="#FFC107" />
+          <Ionicons name="finger-print-outline" size={24} color='red' />
           <Text style={styles.biometricText}>Connexion biométrique</Text>
         </TouchableOpacity>
 
@@ -126,8 +126,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 60,
     paddingHorizontal: 20,
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
+    borderBottomLeftRadius: -30,
+    borderBottomRightRadius: -30,
   },
   logoContainer: {
     width: 80,
@@ -156,6 +156,8 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 30,
     paddingTop: 40,
+    borderTopLeftRadius:30,
+    borderTopRightRadius:30,
   },
   formTitle: {
     fontSize: 24,
@@ -194,7 +196,7 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   forgotPasswordText: {
-    color: "#FFC107",
+    color: "#764ba",
     fontSize: 14,
     fontWeight: "500",
   },
@@ -247,7 +249,7 @@ const styles = StyleSheet.create({
   biometricText: {
     marginLeft: 10,
     fontSize: 16,
-    color: "#FFC107",
+    color: 'red',
     fontWeight: "600",
   },
   signupContainer: {
@@ -260,7 +262,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   signupLink: {
-    color: "#FFC107",
+    color: "#764ba2",
     fontSize: 16,
     fontWeight: "600",
   },

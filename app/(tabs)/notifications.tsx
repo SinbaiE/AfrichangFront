@@ -20,6 +20,11 @@ export default function NotificationsScreen() {
   const [refreshing, setRefreshing] = useState(false)
   const [filter, setFilter] = useState<"all" | "unread">("all")
 
+  // les données de test 
+
+  const   content =  "les enfant doit aller la où tous les monde peu pas les deranger en ce moment precis"
+  const tilte = "la vie"
+
   const onRefresh = () => {
     setRefreshing(true)
     // Recharger les notifications
@@ -190,7 +195,7 @@ export default function NotificationsScreen() {
                       </View>
                     )}
                   </View>
-                  <Text style={styles.notificationBody}>{notification.body}</Text>
+                  <Text style={styles.notificationBody}>{notification.body}||{content}</Text>
                   <Text style={styles.notificationTime}>{formatTime(notification.timestamp)}</Text>
                 </View>
 
@@ -411,6 +416,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#64748b",
     textAlign: "center",
-    lineHeight: 20,
+    lineHeight: 24,
   },
 })

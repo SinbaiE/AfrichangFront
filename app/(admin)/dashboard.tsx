@@ -110,7 +110,7 @@ export default function AdminDashboard() {
             <Text style={styles.headerTitle}>Dashboard Admin</Text>
             <Text style={styles.headerSubtitle}>Gestion AfriChange</Text>
           </View>
-          <TouchableOpacity style={styles.settingsButton}>
+          <TouchableOpacity style={styles.settingsButton} onPress={()=>router.push('/(tabs)/settings')}>
             <Ionicons name="settings-outline" size={24} color="#fff" />
           </TouchableOpacity>
         </LinearGradient>
@@ -174,12 +174,12 @@ export default function AdminDashboard() {
               <Text style={styles.actionText}>Transactions</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.actionButton} onPress={() => router.push("/(admin)/users")}>
+            <TouchableOpacity style={styles.actionButton} onPress={() => router.push("/(admin)/utilisateurs")}>
               <Ionicons name="people-outline" size={24} color="#667eea" />
               <Text style={styles.actionText}>Utilisateurs</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.actionButton} onPress={() => router.push("/(admin)/reports")}>
+            <TouchableOpacity style={styles.actionButton} onPress={() => router.push("/(admin)/rapports")}>
               <Ionicons name="bar-chart-outline" size={24} color="#667eea" />
               <Text style={styles.actionText}>Rapports</Text>
             </TouchableOpacity>
