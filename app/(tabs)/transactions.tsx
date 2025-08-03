@@ -14,6 +14,7 @@ import {
 import { LinearGradient } from "expo-linear-gradient"
 import { Ionicons } from "@expo/vector-icons"
 import type { Transaction } from "@/types"
+import { TransactionService } from "@/services/TransactionService"
 
 interface TransactionFilter {
   type: "all" | "exchange" | "deposit" | "withdrawal"
@@ -42,12 +43,13 @@ export default function TransactionsScreen() {
   }, [transactions, filter, searchQuery])
 
   const loadTransactions = async () => {
+    setIsLoading(true)
     try {
-      const response = await fetch("/api/transactions")
-      const data = await response.json()
-      setTransactions(data.transactions || [])
+      const data = await TransactionService.getUserTransactions()
+      setTransactions(data || [])
     } catch (error) {
       console.error("Erreur chargement transactions:", error)
+      // On pourrait mettre en place un state pour afficher une erreur à l'utilisateur
     } finally {
       setIsLoading(false)
       setRefreshing(false)
