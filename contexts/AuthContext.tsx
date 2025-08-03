@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import type { User } from "@/types"
 import * as SecureStore from "expo-secure-store"
+import { API_BASE_URL } from "@/configuration/api"
 
 interface AuthContextType {
   user: User | null
@@ -25,9 +26,6 @@ interface RegisterData {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
-
-// Configuration API Backend Node.js/Sequelize
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || "http://192.168.158.159:5000/api"
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
