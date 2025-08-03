@@ -65,3 +65,24 @@ export interface KYCDocument {
   reviewedAt?: string
   rejectionReason?: string
 }
+
+export interface ExchangeOffer {
+  id: string;
+  userId: string;
+  fromCurrency: string;
+  toCurrency: string;
+  fromAmount: number;
+  toAmount: number;
+  rate: number;
+  status: 'open' | 'closed' | 'cancelled';
+  createdAt: string;
+}
+
+export interface ExchangeOrder {
+  id: string;
+  offerId: string;
+  sellerId: string;
+  buyerId: string;
+  status: 'pending' | 'completed' | 'failed';
+  createdAt: string;
+}

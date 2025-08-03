@@ -79,7 +79,7 @@ export default function P2POfferDetailScreen() {
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Pour</Text>
             <Text style={styles.summaryValueBold}>{offer.toAmount.toLocaleString()} {offer.toCurrency}</Text>
-          </V>
+          </View>
         </View>
 
         <View style={styles.balanceCheckCard}>
