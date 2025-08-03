@@ -9,7 +9,7 @@ export interface User {
   isVerified: boolean
   kycStatus: "pending" | "approved" | "rejected"
   createdAt: string
-  avatar?: string
+  avatar?: string | null
 }
 
 export interface Currency {
