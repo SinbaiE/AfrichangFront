@@ -30,7 +30,8 @@ interface ThemeColors {
   success: string
   warning: string
   error: string
-  info: string // Gardé pour la compatibilité, mais mappé sur une couleur neutre
+  info: string
+  earthBrown: string
 }
 
 interface ThemeContextType {
@@ -50,7 +51,8 @@ const lightColors: ThemeColors = {
   success: afriChangeColors.success,
   warning: afriChangeColors.warning,
   error: afriChangeColors.error,
-  info: afriChangeColors.emeraldGreen, // Info mappé sur le vert
+  info: afriChangeColors.emeraldGreen,
+  earthBrown: afriChangeColors.earthBrown,
 }
 
 const darkColors: ThemeColors = {
@@ -65,6 +67,7 @@ const darkColors: ThemeColors = {
   warning: afriChangeColors.warning,
   error: afriChangeColors.error,
   info: afriChangeColors.emeraldGreen,
+  earthBrown: afriChangeColors.earthBrown,
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
