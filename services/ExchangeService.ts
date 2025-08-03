@@ -58,7 +58,7 @@ export const ExchangeService = {
   },
 
   getSpecificRate: async (from: string, to: string): Promise<ExchangeRate> => {
-    const response = await apiClient.get(API_ENDPOINTS.GET_SPECIFIC_rate(from, to))
+    const response = await apiClient.get(API_ENDPOINTS.GET_SPECIFIC_RATE(from, to))
     return response.data
   },
 }

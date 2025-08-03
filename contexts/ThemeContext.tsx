@@ -3,6 +3,22 @@
 import type React from "react"
 import { createContext, useContext, useState, type ReactNode } from "react"
 
+// Définition de la nouvelle charte graphique
+const afriChangeColors = {
+  primaryYellow: "#FFC107", // Jaune Or Africain
+  emeraldGreen: "#10b981", // Vert Émeraude
+  earthBrown: "#5D4037", // Terre Africaine (pour le texte)
+  lightBeige: "#FFF8E1", // Fond clair (crème/beige)
+  white: "#FFFFFF",
+  lightGray: "#F5F5F5", // Gris clair pour les bordures/surfaces
+  darkGray: "#333333", // Texte pour le mode sombre
+  darkSurface: "#2d2d2d", // Surface pour le mode sombre
+  darkBackground: "#1a1a1a", // Fond pour le mode sombre
+  success: "#4ade80", // Vert pour succès
+  warning: "#f59e0b", // Orange pour avertissement
+  error: "#ef4444", // Rouge pour erreur
+}
+
 interface ThemeColors {
   primary: string
   secondary: string
@@ -14,7 +30,7 @@ interface ThemeColors {
   success: string
   warning: string
   error: string
-  info: string
+  info: string // Gardé pour la compatibilité, mais mappé sur une couleur neutre
 }
 
 interface ThemeContextType {
@@ -24,31 +40,31 @@ interface ThemeContextType {
 }
 
 const lightColors: ThemeColors = {
-  primary: "#2563EB",
-  secondary: "#10B981",
-  background: "#FFFFFF",
-  surface: "#F8FAFC",
-  text: "#1F2937",
-  textSecondary: "#6B7280",
-  border: "#E5E7EB",
-  success: "#10B981",
-  warning: "#F59E0B",
-  error: "#EF4444",
-  info: "#3B82F6",
+  primary: afriChangeColors.primaryYellow,
+  secondary: afriChangeColors.emeraldGreen,
+  background: afriChangeColors.lightBeige,
+  surface: afriChangeColors.white,
+  text: afriChangeColors.earthBrown,
+  textSecondary: "#6B7280", // Gardé neutre
+  border: afriChangeColors.lightGray,
+  success: afriChangeColors.success,
+  warning: afriChangeColors.warning,
+  error: afriChangeColors.error,
+  info: afriChangeColors.emeraldGreen, // Info mappé sur le vert
 }
 
 const darkColors: ThemeColors = {
-  primary: "#3B82F6",
-  secondary: "#10B981",
-  background: "#111827",
-  surface: "#1F2937",
-  text: "#F9FAFB",
-  textSecondary: "#D1D5DB",
-  border: "#374151",
-  success: "#10B981",
-  warning: "#F59E0B",
-  error: "#EF4444",
-  info: "#3B82F6",
+  primary: afriChangeColors.primaryYellow,
+  secondary: afriChangeColors.emeraldGreen,
+  background: afriChangeColors.darkBackground,
+  surface: afriChangeColors.darkSurface,
+  text: afriChangeColors.white,
+  textSecondary: "#D1D5DB", // Gardé neutre
+  border: "#404040",
+  success: afriChangeColors.success,
+  warning: afriChangeColors.warning,
+  error: afriChangeColors.error,
+  info: afriChangeColors.emeraldGreen,
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)

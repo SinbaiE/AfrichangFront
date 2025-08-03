@@ -2,7 +2,7 @@
 class ExchangeRateService {
   private baseUrl = "https://api.exchangerate-api.com/v4/latest" // API gratuite
   private fallbackUrl = "https://api.fixer.io/latest" // Backup gratuit (limité)
-  private cache: Map<string, { rate: number; timestamp: number }> = new Map()
+  private cache: Map<string, { rates: Record<string, number>; timestamp: number }> = new Map()
   private cacheTimeout = 5 * 60 * 1000 // 5 minutes
 
   // Devises africaines principales avec leurs codes ISO
@@ -29,7 +29,7 @@ class ExchangeRateService {
       const cacheKey = `rates_${baseCurrency}`
       const cached = this.cache.get(cacheKey)
       if (cached && Date.now() - cached.timestamp < this.cacheTimeout) {
-        return this.getAfricanRates(cached.rate, baseCurrency)
+        return this.getAfricanRates(cached.rates, baseCurrency)
       }
 
       // Récupérer depuis l'API principale
@@ -44,7 +44,7 @@ class ExchangeRateService {
       const rates = data.rates || {}
 
       // Mettre en cache
-      this.cache.set(cacheKey, { rate: rates, timestamp: Date.now() })
+      this.cache.set(cacheKey, { rates: rates, timestamp: Date.now() })
 
       return this.getAfricanRates(rates, baseCurrency)
     } catch (error) {
