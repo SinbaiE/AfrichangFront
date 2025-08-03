@@ -50,6 +50,47 @@ export interface TradeStats {
   history: { date: string; value: number }[];
 }
 
+export interface Deposit {
+  id: number;
+  userId: number;
+  walletId: number;
+  amount: number;
+  currency: string;
+  paymentMethodId: number;
+  status: "pending" | "processing" | "completed" | "failed" | "cancelled";
+  reference: string;
+  externalReference?: string;
+  paymentDetails?: any;
+  processedAt?: string;
+  failureReason?: string;
+}
+
+export interface UserSettings {
+  id: number;
+  userId: number;
+  notifications: any;
+  security: any;
+  privacy: any;
+  preferences: any;
+}
+
+export interface Withdrawal {
+  id: number;
+  userId: number;
+  walletId: number;
+  amount: number;
+  currency: string;
+  paymentMethodId: number;
+  status: "pending" | "processing" | "completed" | "failed" | "cancelled";
+  reference: string;
+  externalReference?: string;
+  fees: number;
+  netAmount: number;
+  withdrawalDetails?: any;
+  processedAt?: string;
+  failureReason?: string;
+}
+
 export interface ExchangeRate {
   from: string
   to: string
