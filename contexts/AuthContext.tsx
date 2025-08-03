@@ -35,20 +35,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   //   checkAuthStatus()
   // }, [])
 
-  // const checkAuthStatus = async () => {
-  //   try {
-  //     const token = await SecureStore.getItemAsync("auth_token")
-  //     if (token) {
-  //       const userData = await fetchUserProfile(token)
-  //       setUser(userData)
-  //     }
-  //   } catch (error) {
-  //     console.error("Auth check failed:", error)
-  //     await SecureStore.deleteItemAsync("auth_token")
-  //   } finally {
-  //     setIsLoading(false)
-  //   }
-  // }
+  const checkAuthStatus = async () => {
+    try {
+      const token = await SecureStore.getItemAsync("auth_token")
+      if (token) {
+        const userData = await fetchUserProfile(token)
+        setUser(userData)
+      }
+    } catch (error) {
+      console.error("Auth check failed:", error)
+      await SecureStore.deleteItemAsync("auth_token")
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const login = async (email: string, password: string) => {
     setIsLoading(true)
