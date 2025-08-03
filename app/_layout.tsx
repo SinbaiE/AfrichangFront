@@ -11,37 +11,40 @@ import { BackupProvider } from "@contexts/BackupContext"
 import { OfflineProvider } from "@contexts/OfflineContext"
 import { MultiCurrencyProvider } from "@contexts/MultiCurrencyContext"
 import { PerformanceProvider } from "@contexts/PerformanceContext"
+import { ThemeProvider } from "@/contexts/ThemeContext"
 
 export default function RootLayout() {
   return (
-    <AuthProvider>
-      <AnalyticsProvider>
-        <LocationProvider>
-          <OfflineProvider>
-            <BackupProvider>
-              <NotificationProvider>
-                <MultiCurrencyProvider>
-                  <PerformanceProvider>
-                    <WalletProvider>
-                      <ExchangeProvider>
-                        <KYCProvider>
-                          <StatusBar style="auto" />
-                          <Stack screenOptions={{ headerShown: false }}>
-                            <Stack.Screen name="(auth)" />
-                            <Stack.Screen name="(tabs)" />
-                            <Stack.Screen name="(admin)" />
-                            <Stack.Screen name="(modals)" />
-                          </Stack>
-                        </KYCProvider>
-                      </ExchangeProvider>
-                    </WalletProvider>
-                  </PerformanceProvider>
-                </MultiCurrencyProvider>
-              </NotificationProvider>
-            </BackupProvider>
-          </OfflineProvider>
-        </LocationProvider>
-      </AnalyticsProvider>
-    </AuthProvider>
+  <ThemeProvider>
+      <AuthProvider>
+        <AnalyticsProvider>
+          <LocationProvider>
+            <OfflineProvider>
+              <BackupProvider>
+                <NotificationProvider>
+                  <MultiCurrencyProvider>
+                    <PerformanceProvider>
+                      <WalletProvider>
+                        <ExchangeProvider>
+                          <KYCProvider>
+                            <StatusBar style="auto" />
+                            <Stack screenOptions={{ headerShown: false }}>
+                              <Stack.Screen name="(auth)" />
+                              <Stack.Screen name="(tabs)" />
+                              <Stack.Screen name="(admin)" />
+                              <Stack.Screen name="(modals)" />
+                            </Stack>
+                          </KYCProvider>
+                        </ExchangeProvider>
+                      </WalletProvider>
+                    </PerformanceProvider>
+                  </MultiCurrencyProvider>
+                </NotificationProvider>
+              </BackupProvider>
+            </OfflineProvider>
+          </LocationProvider>
+        </AnalyticsProvider>
+      </AuthProvider>
+    </ThemeProvider>
   )
 }
