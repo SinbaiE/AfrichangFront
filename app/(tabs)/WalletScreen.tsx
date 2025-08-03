@@ -14,6 +14,7 @@ import { Ionicons } from "@expo/vector-icons"
 import { LinearGradient } from "expo-linear-gradient"
 import { useTheme } from "@/contexts/ThemeContext"
 import { useWallet } from "@/contexts/WalletContext"
+import { router } from "expo-router"
 
 const CURRENCY_INFO: { [key: string]: { name: string; symbol: string; flag: string } } = {
   XOF: { name: "Franc CFA (BCEAO)", symbol: "FCFA", flag: "🇸🇳" },
@@ -135,7 +136,11 @@ export default function WalletScreen({ navigation }: any) {
               {wallets.map((wallet) => {
                 const currencyInfo = getCurrencyInfo(wallet.currency.code)
                 return (
-                  <TouchableOpacity key={wallet.id} style={[styles.walletCard, { backgroundColor: colors.surface }]}>
+                  <TouchableOpacity
+                    key={wallet.id}
+                    style={[styles.walletCard, { backgroundColor: colors.surface }]}
+                    onPress={() => router.push(`/(tabs)/wallet/${wallet.currency.code}`)}
+                  >
                     <View style={styles.walletHeader}>
                       <View style={styles.walletInfo}>
                         <Text style={styles.walletFlag}>{currencyInfo.flag}</Text>

@@ -1,6 +1,7 @@
 import { Stack } from "expo-router"
 import { StatusBar } from "expo-status-bar"
 import { AuthProvider } from "@contexts/AuthContext"
+import { ThemeProvider } from "@contexts/ThemeContext"
 import { WalletProvider } from "@contexts/WalletContext"
 import { ExchangeProvider } from "@contexts/ExchangeContext"
 import { NotificationProvider } from "@contexts/NotificationContext"
@@ -11,12 +12,12 @@ import { BackupProvider } from "@contexts/BackupContext"
 import { OfflineProvider } from "@contexts/OfflineContext"
 import { MultiCurrencyProvider } from "@contexts/MultiCurrencyContext"
 import { PerformanceProvider } from "@contexts/PerformanceContext"
-import { ThemeProvider } from "@/contexts/ThemeContext"
+// import { ThemeProvider } from "@/contexts/ThemeContext"
 
 export default function RootLayout() {
   return (
-  <ThemeProvider>
-      <AuthProvider>
+    <AuthProvider>
+      <ThemeProvider>
         <AnalyticsProvider>
           <LocationProvider>
             <OfflineProvider>
@@ -44,7 +45,7 @@ export default function RootLayout() {
             </OfflineProvider>
           </LocationProvider>
         </AnalyticsProvider>
-      </AuthProvider>
-    </ThemeProvider>
+      </ThemeProvider>
+    </AuthProvider>
   )
 }
