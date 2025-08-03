@@ -24,10 +24,30 @@ export interface Currency {
 export interface Wallet {
   id: string
   userId: string
-  currency: Currency
+  currency: string // 'XOF', 'NGN', etc.
   balance: number
-  isDefault: boolean
-  createdAt: string
+  isActive: boolean
+  lastTransactionAt: string | null
+}
+
+export interface P2POffer {
+  id: string;
+  userId: string;
+  fromCurrency: string;
+  toCurrency: string;
+  amount: number;
+  rate: number;
+  status: 'open' | 'matched' | 'cancelled';
+  matchedWith?: number;
+  createdAt: string;
+}
+
+export interface TradeStats {
+  totalTrades: number;
+  totalVolume: number;
+  averageRate: number;
+  pnl: number;
+  history: { date: string; value: number }[];
 }
 
 export interface ExchangeRate {
@@ -64,25 +84,4 @@ export interface KYCDocument {
   uploadedAt: string
   reviewedAt?: string
   rejectionReason?: string
-}
-
-export interface ExchangeOffer {
-  id: string;
-  userId: string;
-  fromCurrency: string;
-  toCurrency: string;
-  fromAmount: number;
-  toAmount: number;
-  rate: number;
-  status: 'open' | 'closed' | 'cancelled';
-  createdAt: string;
-}
-
-export interface ExchangeOrder {
-  id: string;
-  offerId: string;
-  sellerId: string;
-  buyerId: string;
-  status: 'pending' | 'completed' | 'failed';
-  createdAt: string;
 }
