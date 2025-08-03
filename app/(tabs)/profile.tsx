@@ -123,7 +123,16 @@ export default function ProfileScreen() {
       setShowConfirmModal(true)
     } else {
       setIsEditing(true)
-      setTempData({ ...userData })
+      // Initialize form data with current user data
+      if (user) {
+        setTempData({
+          firstName: user.firstName || "",
+          lastName: user.lastName || "",
+          email: user.email || "",
+          phone: user.phone || "",
+          avatar: user.avatar || null,
+        })
+      }
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
 
       Animated.parallel([
@@ -198,7 +207,15 @@ export default function ProfileScreen() {
 
   const cancelEdit = () => {
     setIsEditing(false)
-    setTempData({ ...userData })
+    if (user) {
+      setTempData({
+        firstName: user.firstName || "",
+        lastName: user.lastName || "",
+        email: user.email || "",
+        phone: user.phone || "",
+        avatar: user.avatar || null,
+      })
+    }
     setErrors({})
     setShowConfirmModal(false)
 
@@ -461,7 +478,7 @@ export default function ProfileScreen() {
               <Text style={[styles.preferenceLabel, { color: themeColors.text }]}>Langue</Text>
             </View>
             <View style={styles.preferenceRight}>
-              <Text style={[styles.preferenceValue, { color: themeColors.subText }]}>{userData.language}</Text>
+              <Text style={[styles.preferenceValue, { color: themeColors.subText }]}>Français</Text>
               <Ionicons name="chevron-forward" size={16} color={themeColors.subText} />
             </View>
           </TouchableOpacity>
@@ -528,17 +545,17 @@ export default function ProfileScreen() {
 
           <TouchableOpacity style={styles.actionItem}>
             <View style={styles.actionLeft}>
-              <View style={[styles.actionIcon, { backgroundColor: userData.twoFactorEnabled ? "#e8f5e8" : "#fff2e8" }]}>
+              <View style={[styles.actionIcon, { backgroundColor: "#fff2e8" }]}>
                 <Ionicons
                   name="shield-checkmark-outline"
                   size={20}
-                  color={userData.twoFactorEnabled ? "#4ade80" : "#ff9500"}
+                  color={"#ff9500"}
                 />
               </View>
               <View>
                 <Text style={[styles.actionLabel, { color: themeColors.text }]}>Authentification à deux facteurs</Text>
                 <Text style={[styles.actionSubLabel, { color: themeColors.subText }]}>
-                  {userData.twoFactorEnabled ? "Activée" : "Désactivée"}
+                  Désactivée
                 </Text>
               </View>
             </View>
