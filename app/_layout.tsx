@@ -1,6 +1,7 @@
 import { Stack } from "expo-router"
 import { StatusBar } from "expo-status-bar"
 import { AuthProvider } from "@contexts/AuthContext"
+import { ThemeProvider } from "@contexts/ThemeContext"
 import { WalletProvider } from "@contexts/WalletContext"
 import { ExchangeProvider } from "@contexts/ExchangeContext"
 import { NotificationProvider } from "@contexts/NotificationContext"
@@ -15,33 +16,35 @@ import { PerformanceProvider } from "@contexts/PerformanceContext"
 export default function RootLayout() {
   return (
     <AuthProvider>
-      <AnalyticsProvider>
-        <LocationProvider>
-          <OfflineProvider>
-            <BackupProvider>
-              <NotificationProvider>
-                <MultiCurrencyProvider>
-                  <PerformanceProvider>
-                    <WalletProvider>
-                      <ExchangeProvider>
-                        <KYCProvider>
-                          <StatusBar style="auto" />
-                          <Stack screenOptions={{ headerShown: false }}>
-                            <Stack.Screen name="(auth)" />
-                            <Stack.Screen name="(tabs)" />
-                            <Stack.Screen name="(admin)" />
-                            <Stack.Screen name="(modals)" />
-                          </Stack>
-                        </KYCProvider>
-                      </ExchangeProvider>
-                    </WalletProvider>
-                  </PerformanceProvider>
-                </MultiCurrencyProvider>
-              </NotificationProvider>
-            </BackupProvider>
-          </OfflineProvider>
-        </LocationProvider>
-      </AnalyticsProvider>
+      <ThemeProvider>
+        <AnalyticsProvider>
+          <LocationProvider>
+            <OfflineProvider>
+              <BackupProvider>
+                <NotificationProvider>
+                  <MultiCurrencyProvider>
+                    <PerformanceProvider>
+                      <WalletProvider>
+                        <ExchangeProvider>
+                          <KYCProvider>
+                            <StatusBar style="auto" />
+                            <Stack screenOptions={{ headerShown: false }}>
+                              <Stack.Screen name="(auth)" />
+                              <Stack.Screen name="(tabs)" />
+                              <Stack.Screen name="(admin)" />
+                              <Stack.Screen name="(modals)" />
+                            </Stack>
+                          </KYCProvider>
+                        </ExchangeProvider>
+                      </WalletProvider>
+                    </PerformanceProvider>
+                  </MultiCurrencyProvider>
+                </NotificationProvider>
+              </BackupProvider>
+            </OfflineProvider>
+          </LocationProvider>
+        </AnalyticsProvider>
+      </ThemeProvider>
     </AuthProvider>
   )
 }
