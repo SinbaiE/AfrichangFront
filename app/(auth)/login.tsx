@@ -11,6 +11,8 @@ import {
   Alert,
   ActivityIndicator,
 } from "react-native"
+import apiClient from "@/services/apiClient"
+import {API_ENDPOINTS} from "@/configuration/api"
 import { LinearGradient } from "expo-linear-gradient"
 import { Ionicons } from "@expo/vector-icons"
 import { useAuth } from "@contexts/AuthContext"
@@ -24,21 +26,38 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false)
 
   const handleLogin = async () => {
-    // if (!email || !password) {
-    //   Alert.alert("Erreur", "Veuillez remplir tous les champs")
-    //   return
-    // }
-
-    // setIsLoading(true)
-    try {
-      // await login(email, password)
-      router.replace("/(auth)/dasboardUsers")
-    } catch (error: any) {
-      Alert.alert("Erreur de connexion", error.message)
-    } finally {
-      setIsLoading(false)
+    if (!email || !password) {
+      Alert.alert('Erreur', 'Tous les champs sont requis.');
+      return;
     }
-  }
+    console.log(email,password)
+
+    setIsLoading(true);
+     try {
+
+      const response = await apiClient.post(API_ENDPOINTS.LOGIN)
+      // const response = await fetch('http://localhost:5000/api/auth', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({ email, password }),
+      // });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Erreur lors de la connexion');
+      }
+
+      Alert.alert('Succès', 'Connexion réussie.');
+      router.replace('/page');
+    } catch (error: any) {
+      Alert.alert('Erreur', error.message || 'Une erreur est survenue');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -97,7 +116,7 @@ export default function LoginScreen() {
 
         <View style={styles.divider}>
           <View style={styles.dividerLine} />
-          <Text style={styles.dividerText}>OU</Text>
+            <Text style={styles.dividerText}>OU</Text>
           <View style={styles.dividerLine} />
         </View>
 

@@ -1,5 +1,4 @@
 "use client"
-
 import { useState } from "react"
 import {
   View,
@@ -11,12 +10,18 @@ import {
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
+  ActivityIndicator,
+  Modal,
+  FlatList,
+  Dimensions,
 } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { LinearGradient } from "expo-linear-gradient"
 import { Ionicons } from "@expo/vector-icons"
 import { useRouter } from "expo-router"
 import { useAuth } from "@contexts/AuthContext"
+
+const { width } = Dimensions.get("window")
 
 interface SignupForm {
   firstName: string
@@ -105,14 +110,16 @@ export default function SignupScreen() {
     if (!validateForm()) return
     setIsLoading(true)
     try {
-      await register({
-        firstName: form.firstName,
-        lastName: form.lastName,
-        email: form.email,
-        phone: form.phone,
-        country: form.country,
-        password: form.password,
-      })
+      // Simulate registration
+      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
+      // await register({ // Uncomment and implement actual registration logic
+      //   firstName: form.firstName,
+      //   lastName: form.lastName,
+      //   email: form.email,
+      //   phone: form.phone,
+      //   country: form.country,
+      //   password: form.password,
+      // })
       Alert.alert("Compte créé !", "Votre compte a été créé avec succès.", [
         { text: "Continuer", onPress: () => router.push("/(auth)/kyc") },
       ])
@@ -127,37 +134,43 @@ export default function SignupScreen() {
     <View style={styles.stepContainer}>
       <Text style={styles.stepTitle}>Informations personnelles</Text>
       <Text style={styles.stepSubtitle}>Commençons par vos informations de base</Text>
-
       <View>
         <Text style={styles.label}>Prénom *</Text>
-        <TextInput
-          style={[styles.input, errors.firstName ? styles.inputError : styles.inputDefault]}
-          placeholder="Votre prénom"
-          value={form.firstName}
-          onChangeText={(text) => setForm({ ...form, firstName: text })}
-          autoCapitalize="words"
-        />
+        <View style={[styles.inputWrapper, errors.firstName ? styles.inputError : styles.inputDefault]}>
+          <Ionicons name="person-outline" size={20} color="#666" style={styles.inputIcon} />
+          <TextInput
+            style={styles.input}
+            placeholder="Votre prénom"
+            value={form.firstName}
+            onChangeText={(text) => setForm({ ...form, firstName: text })}
+            autoCapitalize="words"
+            placeholderTextColor="#999"
+          />
+        </View>
         {errors.firstName && <Text style={styles.errorText}>{errors.firstName}</Text>}
       </View>
-
       <View>
         <Text style={styles.label}>Nom *</Text>
-        <TextInput
-          style={[styles.input, errors.lastName ? styles.inputError : styles.inputDefault]}
-          placeholder="Votre nom"
-          value={form.lastName}
-          onChangeText={(text) => setForm({ ...form, lastName: text })}
-          autoCapitalize="words"
-        />
+        <View style={[styles.inputWrapper, errors.lastName ? styles.inputError : styles.inputDefault]}>
+          <Ionicons name="person-outline" size={20} color="#666" style={styles.inputIcon} />
+          <TextInput
+            style={styles.input}
+            placeholder="Votre nom"
+            value={form.lastName}
+            onChangeText={(text) => setForm({ ...form, lastName: text })}
+            autoCapitalize="words"
+            placeholderTextColor="#999"
+          />
+        </View>
         {errors.lastName && <Text style={styles.errorText}>{errors.lastName}</Text>}
       </View>
-
       <View>
         <Text style={styles.label}>Pays de résidence *</Text>
         <TouchableOpacity
           style={[styles.countryPicker, errors.country ? styles.inputError : styles.inputDefault]}
           onPress={() => setShowCountryPicker(true)}
         >
+          <Ionicons name="map-outline" size={20} color="#666" style={styles.inputIcon} />
           <Text style={form.country ? styles.countryText : styles.countryPlaceholder}>
             {form.country
               ? `${AFRICAN_COUNTRIES.find((c) => c.code === form.country)?.flag} ${
@@ -172,33 +185,156 @@ export default function SignupScreen() {
     </View>
   )
 
+  const renderStep2 = () => (
+    <View style={styles.stepContainer}>
+      <Text style={styles.stepTitle}>Coordonnées</Text>
+      <Text style={styles.stepSubtitle}>Comment pouvons-nous vous contacter ?</Text>
+      <View>
+        <Text style={styles.label}>Adresse e-mail *</Text>
+        <View style={[styles.inputWrapper, errors.email ? styles.inputError : styles.inputDefault]}>
+          <Ionicons name="mail-outline" size={20} color="#666" style={styles.inputIcon} />
+          <TextInput
+            style={styles.input}
+            placeholder="email@exemple.com"
+            value={form.email}
+            onChangeText={(text) => setForm({ ...form, email: text.trim() })}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            placeholderTextColor="#999"
+          />
+        </View>
+        {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+      </View>
+      <View>
+        <Text style={styles.label}>Numéro de téléphone *</Text>
+        <View style={[styles.inputWrapper, errors.phone ? styles.inputError : styles.inputDefault]}>
+          <Ionicons name="call-outline" size={20} color="#666" style={styles.inputIcon} />
+          <TextInput
+            style={styles.input}
+            placeholder="+225 00 00 00 00"
+            value={form.phone}
+            onChangeText={(text) => setForm({ ...form, phone: text })}
+            keyboardType="phone-pad"
+            placeholderTextColor="#999"
+          />
+        </View>
+        {errors.phone && <Text style={styles.errorText}>{errors.phone}</Text>}
+      </View>
+    </View>
+  )
+
+  const renderStep3 = () => (
+    <View style={styles.stepContainer}>
+      <Text style={styles.stepTitle}>Sécurité du compte</Text>
+      <Text style={styles.stepSubtitle}>Créez un mot de passe sécurisé</Text>
+      <View>
+        <Text style={styles.label}>Mot de passe *</Text>
+        <View style={[styles.inputWrapper, errors.password ? styles.inputError : styles.inputDefault]}>
+          <Ionicons name="lock-closed-outline" size={20} color="#666" style={styles.inputIcon} />
+          <TextInput
+            style={styles.input}
+            placeholder="********"
+            value={form.password}
+            onChangeText={(text) => setForm({ ...form, password: text })}
+            secureTextEntry={!showPassword}
+            placeholderTextColor="#999"
+          />
+          <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
+            <Ionicons name={showPassword ? "eye-outline" : "eye-off-outline"} size={20} color="#666" />
+          </TouchableOpacity>
+        </View>
+        {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
+      </View>
+      <View>
+        <Text style={styles.label}>Confirmer le mot de passe *</Text>
+        <View style={[styles.inputWrapper, errors.confirmPassword ? styles.inputError : styles.inputDefault]}>
+          <Ionicons name="lock-closed-outline" size={20} color="#666" style={styles.inputIcon} />
+          <TextInput
+            style={styles.input}
+            placeholder="********"
+            value={form.confirmPassword}
+            onChangeText={(text) => setForm({ ...form, confirmPassword: text })}
+            secureTextEntry={!showConfirmPassword}
+            placeholderTextColor="#999"
+          />
+          <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)} style={styles.eyeIcon}>
+            <Ionicons name={showConfirmPassword ? "eye-outline" : "eye-off-outline"} size={20} color="#666" />
+          </TouchableOpacity>
+        </View>
+        {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword}</Text>}
+      </View>
+      <TouchableOpacity
+        style={styles.checkboxContainer}
+        onPress={() => setForm({ ...form, acceptTerms: !form.acceptTerms })}
+      >
+        <Ionicons
+          name={form.acceptTerms ? "checkbox-outline" : "square-outline"}
+          size={24}
+          color={form.acceptTerms ? "#667eea" : "#666"}
+        />
+        <Text style={styles.checkboxText}>
+          J'accepte les <Text style={styles.linkText}>Termes et Conditions</Text>
+        </Text>
+      </TouchableOpacity>
+    </View>
+  )
+
+  const renderCurrentStep = () => {
+    switch (currentStep) {
+      case 1:
+        return renderStep1()
+      case 2:
+        return renderStep2()
+      case 3:
+        return renderStep3()
+      default:
+        return null
+    }
+  }
+
   return (
     <SafeAreaView style={styles.safeArea}>
-      <LinearGradient colors={["#3B82F6", "#1E40AF"]} style={styles.headerGradient}>
-        <View style={styles.header}>
+      <LinearGradient colors={["#667eea", "#764ba2"]} style={styles.headerGradient}>
+        {/* Top navigation and branding */}
+        <View style={styles.headerContent}>
           <TouchableOpacity onPress={() => (currentStep > 1 ? setCurrentStep(currentStep - 1) : router.back())}>
             <Ionicons name="arrow-back" size={24} color="white" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Créer un compte</Text>
-          <View style={{ width: 24 }} />
+          <Text style={styles.stepIndicator}>Étape {currentStep}/3</Text>
+        </View>
+
+        {/* AfriChange Branding */}
+        <View style={styles.afriChangeBranding}>
+          <View style={styles.logoContainer}>
+            <Text style={styles.logoText}>🌍</Text>
+          </View>
+          <Text style={styles.mainTitle}>AfriChange</Text>
+          <Text style={styles.mainSubtitle}>Échangez vos devises africaines facilement</Text>
+        </View>
+
+        {/* Progress Bar */}
+        <View style={styles.progressBarContainer}>
+          <View style={[styles.progressBar, { width: `${(currentStep / 3) * 100}%` }]} />
         </View>
       </LinearGradient>
 
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={{ flex: 1 }}
-      >
+      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          {currentStep === 1 && renderStep1()}
+          {renderCurrentStep()}
 
           <TouchableOpacity
             style={[styles.button, isLoading ? styles.buttonDisabled : styles.buttonEnabled]}
             onPress={handleNext}
             disabled={isLoading}
           >
-            <Text style={styles.buttonText}>
-              {isLoading ? "Création..." : currentStep === 3 ? "Créer mon compte" : "Continuer"}
-            </Text>
+            {isLoading ? (
+              <ActivityIndicator color="white" />
+            ) : (
+              <Text style={styles.buttonText}>
+                {currentStep === 3 ? "Créer mon compte" : "Continuer"}
+              </Text>
+            )}
           </TouchableOpacity>
 
           <View style={styles.footer}>
@@ -209,6 +345,34 @@ export default function SignupScreen() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* Country Picker Modal */}
+      <Modal visible={showCountryPicker} transparent animationType="slide">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <FlatList
+              data={AFRICAN_COUNTRIES}
+              keyExtractor={(item) => item.code}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.countryItem}
+                  onPress={() => {
+                    setForm({ ...form, country: item.code })
+                    setShowCountryPicker(false)
+                  }}
+                >
+                  <Text style={styles.countryItemText}>
+                    {item.flag} {item.name}
+                  </Text>
+                </TouchableOpacity>
+              )}
+            />
+            <TouchableOpacity style={styles.closeButton} onPress={() => setShowCountryPicker(false)}>
+              <Text style={styles.closeButtonText}>Fermer</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   )
 }
@@ -216,39 +380,94 @@ export default function SignupScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: "#f8fafc", // Light background for the whole screen
   },
   headerGradient: {
-    height: 128,
+    height: 220, // Increased height to accommodate logo and branding
+    justifyContent: "space-between", // Distribute content vertically
+    paddingTop: 32,
+    paddingHorizontal: 20, // Adjusted padding
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+    overflow: "hidden",
   },
-  header: {
+  headerContent: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingTop: 32,
-    paddingHorizontal: 16,
+    width: "100%",
   },
   headerTitle: {
     color: "white",
     fontSize: 18,
     fontWeight: "600",
   },
+  stepIndicator: {
+    color: "white",
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  afriChangeBranding: {
+    alignItems: "center",
+    marginBottom: 20, // Space before progress bar
+  },
+  logoContainer: {
+    width: 60, // Smaller logo for signup header
+    height: 60,
+    backgroundColor: "rgba(255,255,255,0.2)",
+    borderRadius: 30,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 10,
+  },
+  logoText: {
+    fontSize: 30, // Smaller emoji
+  },
+  mainTitle: {
+    fontSize: 28, // Smaller title
+    fontWeight: "bold",
+    color: "#fff",
+    marginBottom: 5,
+  },
+  mainSubtitle: {
+    fontSize: 14, // Smaller subtitle
+    color: "rgba(255,255,255,0.9)",
+    textAlign: "center",
+  },
+  progressBarContainer: {
+    height: 4,
+    backgroundColor: "rgba(255,255,255,0.3)",
+    borderRadius: 2,
+    marginHorizontal: 0, // No horizontal margin here, it's full width
+  },
+  progressBar: {
+    height: "100%",
+    backgroundColor: "white",
+    borderRadius: 2,
+  },
   scrollContent: {
+    flexGrow: 1,
     paddingHorizontal: 24,
     paddingVertical: 24,
+    marginTop: -30, // Pull the content up to overlap the header's curve
+    backgroundColor: "#f8fafc", // Ensure content background matches safeArea
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
   },
   stepContainer: {
-    gap: 16,
+    gap: 20,
+    marginBottom: 20,
   },
   stepTitle: {
     fontSize: 24,
     fontWeight: "bold",
     textAlign: "center",
     marginBottom: 8,
+    color: "#1e293b",
   },
   stepSubtitle: {
     fontSize: 14,
-    color: "#4B5563",
+    color: "#64748b",
     textAlign: "center",
     marginBottom: 24,
   },
@@ -258,21 +477,40 @@ const styles = StyleSheet.create({
     color: "#374151",
     marginBottom: 8,
   },
+  inputWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    borderRadius: 15,
+    paddingHorizontal: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  inputIcon: {
+    marginRight: 10,
+  },
   input: {
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    flex: 1,
+    paddingVertical: 15,
+    fontSize: 16,
+    color: "#1e293b",
+  },
+  eyeIcon: {
+    padding: 5,
   },
   inputDefault: {
     borderWidth: 1,
-    borderColor: "#D1D5DB",
+    borderColor: "#e2e8f0",
   },
   inputError: {
     borderWidth: 1,
-    borderColor: "#EF4444",
+    borderColor: "#ef4444",
   },
   errorText: {
-    color: "#EF4444",
+    color: "#ef4444",
     fontSize: 12,
     marginTop: 4,
   },
@@ -280,43 +518,105 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    backgroundColor: "#fff",
+    borderRadius: 15,
+    paddingHorizontal: 15,
+    paddingVertical: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   countryText: {
-    color: "black",
+    color: "#1e293b",
+    fontSize: 16,
+    flex: 1,
   },
   countryPlaceholder: {
-    color: "#9CA3AF",
+    color: "#999",
+    fontSize: 16,
+    flex: 1,
+  },
+  checkboxContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 10,
+  },
+  checkboxText: {
+    marginLeft: 10,
+    fontSize: 14,
+    color: "#64748b",
+  },
+  linkText: {
+    color: "#764ba2",
+    fontWeight: "600",
   },
   button: {
     marginTop: 32,
-    borderRadius: 8,
+    borderRadius: 15,
     paddingVertical: 16,
+    alignItems: "center",
+    overflow: "hidden",
   },
   buttonEnabled: {
-    backgroundColor: "#3B82F6",
+    // LinearGradient will handle background
   },
   buttonDisabled: {
-    backgroundColor: "#9CA3AF",
+    opacity: 0.6,
   },
   buttonText: {
     color: "white",
     textAlign: "center",
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: 18,
+    fontWeight: "bold",
   },
   footer: {
     flexDirection: "row",
     justifyContent: "center",
     marginTop: 24,
+    paddingBottom: 16,
   },
   footerText: {
-    color: "#4B5563",
+    color: "#64748b",
+    fontSize: 16,
   },
   footerLink: {
-    color: "#3B82F6",
+    color: "#764ba2",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "flex-end",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  modalContent: {
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    maxHeight: "50%",
+  },
+  countryItem: {
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
+  },
+  countryItemText: {
+    fontSize: 16,
+    color: "#1e293b",
+  },
+  closeButton: {
+    marginTop: 15,
+    paddingVertical: 12,
+    alignItems: "center",
+    backgroundColor: "#f1f5f9",
+    borderRadius: 10,
+  },
+  closeButtonText: {
+    fontSize: 16,
+    color: "#ef4444",
     fontWeight: "600",
   },
 })
