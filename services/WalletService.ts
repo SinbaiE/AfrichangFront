@@ -1,15 +1,27 @@
 import apiClient from "./apiClient"
 import { API_ENDPOINTS } from "@/configuration/api"
-import type { Wallet } from "@/types" // Assuming a Wallet type exists in types/index.ts
+import type { Wallet, Currency } from "@/types" // Assuming a Wallet type exists in types/index.ts
 
 export const WalletService = {
   // Récupérer tous les portefeuilles de l'utilisateur
-  getUserWallets: async (): Promise<Wallet[]> => {
+  getUserWallets: async (): Promise<{ wallets: Wallet[], totalBalanceUSD: number }> => {
     try {
       const response = await apiClient.get(API_ENDPOINTS.WALLETS)
+      // The API is expected to return { wallets: Wallet[], totalBalanceUSD: number }
       return response.data
     } catch (error) {
       console.error("Error fetching user wallets:", error)
+      throw error
+    }
+  },
+
+  // Get all supported currencies
+  getCurrencies: async (): Promise<Currency[]> => {
+    try {
+      const response = await apiClient.get(API_ENDPOINTS.CURRENCIES)
+      return response.data
+    } catch (error) {
+      console.error("Error fetching currencies:", error)
       throw error
     }
   },

@@ -10,6 +10,7 @@ export const API_ENDPOINTS = {
 
   // Wallets
   WALLETS: "/wallets",
+  CURRENCIES: "/currencies",
 
   // Transactions
   TRANSACTIONS: "/transactions",
