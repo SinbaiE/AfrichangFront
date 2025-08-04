@@ -31,9 +31,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  useEffect(() => {
-    checkAuthStatus()
-  }, [])
+  // useEffect(() => {
+  //   checkAuthStatus()
+  // }, [])
 
   const checkAuthStatus = async () => {
     setIsLoading(true)
