@@ -1,34 +1,43 @@
-import apiClient from "./apiClient"
-import { API_ENDPOINTS } from "@/configuration/api"
-import type { Deposit } from "@/types" // Assuming a Deposit type exists
+import apiClient from "./apiClient";
+import { API_ENDPOINTS } from "@/configuration/api";
+import type { Deposit } from "@/types";
 
+/**
+ * Service for deposit-related API calls.
+ */
 export const DepositService = {
-  // Récupérer les dépôts d'un utilisateur
+  /**
+   * Fetches the deposit history for a user.
+   */
   getUserDeposits: async (userId: string): Promise<Deposit[]> => {
-    const response = await apiClient.get(API_ENDPOINTS.DEPOSITS + `/${userId}`)
-    return response.data
+    return apiClient.get(`${API_ENDPOINTS.DEPOSITS}/${userId}`);
   },
 
-  // Créer un nouveau dépôt
+  /**
+   * Creates a new deposit request.
+   */
   createDeposit: async (userId: string, depositData: any): Promise<Deposit> => {
-    const response = await apiClient.post(API_ENDPOINTS.DEPOSITS + `/${userId}`, depositData)
-    return response.data
+    return apiClient.post(`${API_ENDPOINTS.DEPOSITS}/${userId}`, depositData);
   },
 
-  // Récupérer les méthodes de paiement
+  /**
+   * Fetches the available payment methods for deposits.
+   */
   getPaymentMethods: async (): Promise<any[]> => {
-    const response = await apiClient.get(API_ENDPOINTS.DEPOSITS + "/payment-methods")
-    return response.data
+    return apiClient.get(`${API_ENDPOINTS.DEPOSITS}/payment-methods`);
   },
 
-  // Récupérer un dépôt spécifique
+  /**
+   * Fetches the details of a specific deposit.
+   */
   getDepositDetails: async (depositId: string): Promise<Deposit> => {
-    const response = await apiClient.get(`${API_ENDPOINTS.DEPOSITS}/${depositId}/users`)
-    return response.data
+    return apiClient.get(`${API_ENDPOINTS.DEPOSITS}/${depositId}/users`);
   },
 
-  // Annuler un dépôt
+  /**
+   * Cancels a pending deposit.
+   */
   cancelDeposit: async (depositId: string): Promise<void> => {
-    await apiClient.put(`${API_ENDPOINTS.DEPOSITS}/${depositId}/cancel`)
+    return apiClient.put(`${API_ENDPOINTS.DEPOSITS}/${depositId}/cancel`, {});
   },
-}
+};

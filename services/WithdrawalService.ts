@@ -1,23 +1,29 @@
-import apiClient from "./apiClient"
-import { API_ENDPOINTS } from "@/configuration/api"
-import type { Withdrawal } from "@/types" // Assuming a Withdrawal type exists
+import apiClient from "./apiClient";
+import { API_ENDPOINTS } from "@/configuration/api";
+import type { Withdrawal } from "@/types";
 
+/**
+ * Service for handling withdrawal requests.
+ */
 export const WithdrawalService = {
-  // Créer une demande de retrait
+  /**
+   * Creates a new withdrawal request.
+   */
   createWithdrawal: async (withdrawalData: any): Promise<Withdrawal> => {
-    const response = await apiClient.post(API_ENDPOINTS.WITHDRAWALS, withdrawalData)
-    return response.data
+    return apiClient.post(API_ENDPOINTS.WITHDRAWALS, withdrawalData);
   },
 
-  // Lister les retraits d'un utilisateur
+  /**
+   * Lists all withdrawals for a specific user.
+   */
   getWithdrawalsByUser: async (userId: string): Promise<Withdrawal[]> => {
-    const response = await apiClient.get(API_ENDPOINTS.WITHDRAWALS_BY_USER(userId))
-    return response.data
+    return apiClient.get(API_ENDPOINTS.WITHDRAWALS_BY_USER(userId));
   },
 
-  // Mettre à jour le statut d'un retrait (pour admin)
+  /**
+   * Updates the status of a withdrawal (for admin use).
+   */
   updateWithdrawalStatus: async (withdrawalId: string, status: string): Promise<Withdrawal> => {
-    const response = await apiClient.put(API_ENDPOINTS.UPDATE_WITHDRAWAL_STATUS(withdrawalId), { status })
-    return response.data
+    return apiClient.put(API_ENDPOINTS.UPDATE_WITHDRAWAL_STATUS(withdrawalId), { status });
   },
-}
+};
