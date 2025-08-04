@@ -1,26 +1,43 @@
-import axios from "axios"
-import * as SecureStore from "expo-secure-store"
-import { API_BASE_URL } from "@/configuration/api"
+import { authorizedFetch } from '@/lib/fetch';
 
-const apiClient = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
+/**
+ * A simple API client that uses the authorizedFetch utility
+ * to make requests. This provides a consistent interface for
+ * making API calls throughout the application.
+ */
+const apiClient = {
+  get: (url: string, options = {}) => {
+    return authorizedFetch(url, { ...options, method: 'GET' });
   },
-})
 
-// Ajouter un intercepteur pour inclure le token d'authentification
-apiClient.interceptors.request.use(
-  async (config) => {
-    const token = await SecureStore.getItemAsync("auth_token")
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
-    return config
+  post: (url: string, data: any, options = {}) => {
+    return authorizedFetch(url, {
+      ...options,
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
   },
-  (error) => {
-    return Promise.reject(error)
-  },
-)
 
-export default apiClient
+  put: (url: string, data: any, options = {}) => {
+    return authorizedFetch(url, {
+      ...options,
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  delete: (url: string, options = {}) => {
+    return authorizedFetch(url, { ...options, method: 'DELETE' });
+  },
+
+  // A special method for multipart/form-data uploads
+  postFormData: (url: string, formData: FormData, options = {}) => {
+    return authorizedFetch(url, {
+      ...options,
+      method: 'POST',
+      body: formData,
+    });
+  },
+};
+
+export default apiClient;

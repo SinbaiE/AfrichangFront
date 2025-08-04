@@ -1,34 +1,43 @@
-import apiClient from "./apiClient"
-import { API_ENDPOINTS } from "@/configuration/api"
-import type { UserSettings } from "@/types" // Assuming a UserSettings type exists
+import apiClient from "./apiClient";
+import { API_ENDPOINTS } from "@/configuration/api";
+import type { UserSettings } from "@/types";
 
+/**
+ * Service for user profile and settings API calls.
+ */
 export const ProfileService = {
-  // Récupérer les paramètres de l'utilisateur
+  /**
+   * Fetches the settings for the authenticated user.
+   */
   getUserSettings: async (): Promise<UserSettings> => {
-    const response = await apiClient.get(API_ENDPOINTS.USER_SETTINGS)
-    return response.data
+    return apiClient.get(API_ENDPOINTS.USER_SETTINGS);
   },
 
-  // Mettre à jour les paramètres de l'utilisateur
+  /**
+   * Updates the settings for the authenticated user.
+   */
   updateUserSettings: async (settingsData: Partial<UserSettings>): Promise<UserSettings> => {
-    const response = await apiClient.put(API_ENDPOINTS.USER_SETTINGS, settingsData)
-    return response.data
+    return apiClient.put(API_ENDPOINTS.USER_SETTINGS, settingsData);
   },
 
-  // Récupérer les statistiques du profil
+  /**
+   * Fetches profile statistics for the user.
+   */
   getProfileStats: async (): Promise<any> => {
-    const response = await apiClient.get(API_ENDPOINTS.PROFILE_STATS)
-    return response.data
+    return apiClient.get(API_ENDPOINTS.PROFILE_STATS);
   },
 
-  // Exporter les données de l'utilisateur
+  /**
+   * Requests an export of the user's data.
+   */
   exportUserData: async (): Promise<any> => {
-    const response = await apiClient.post(API_ENDPOINTS.EXPORT_USER_DATA)
-    return response.data // This might be a file or a link
+    return apiClient.post(API_ENDPOINTS.EXPORT_USER_DATA, {});
   },
 
-  // Supprimer le compte de l'utilisateur
+  /**
+   * Deletes the user's account.
+   */
   deleteUserAccount: async (): Promise<void> => {
-    await apiClient.delete(API_ENDPOINTS.DELETE_USER_ACCOUNT)
+    return apiClient.delete(API_ENDPOINTS.DELETE_USER_ACCOUNT);
   },
-}
+};

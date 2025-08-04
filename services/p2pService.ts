@@ -27,6 +27,10 @@ const MOCKED_STATS: TradeStats = {
 
 type CreateOfferPayload = Omit<P2POffer, 'id' | 'userId' | 'status' | 'createdAt' | 'matchedWith'>;
 
+/**
+ * Service for Peer-to-Peer (P2P) trading.
+ * NOTE: This service currently uses mocked data. The real API calls are commented out.
+ */
 export const P2PService = {
   /**
    * Fetches open P2P offers from the market.
@@ -34,8 +38,7 @@ export const P2PService = {
   getOpenOffers: async (): Promise<P2POffer[]> => {
     console.log('Fetching open P2P offers...');
     // Real implementation:
-    // const response = await apiClient.get(API_ENDPOINTS.EXCHANGE_OFFERS);
-    // return response.data;
+    // return await apiClient.get(API_ENDPOINTS.EXCHANGE_OFFERS);
 
     // Mock implementation:
     return new Promise(resolve => setTimeout(() => resolve(MOCKED_OFFERS), 1000));
@@ -48,8 +51,7 @@ export const P2PService = {
   createOffer: async (offerData: CreateOfferPayload): Promise<P2POffer> => {
     console.log('Creating P2P offer with data:', offerData);
     // Real implementation:
-    // const response = await apiClient.post(API_ENDPOINTS.EXCHANGE_OFFERS, offerData);
-    // return response.data;
+    // return await apiClient.post(API_ENDPOINTS.EXCHANGE_OFFERS, offerData);
 
     // Mock implementation:
     const newOffer: P2POffer = {
@@ -69,8 +71,7 @@ export const P2PService = {
   acceptOffer: async (offerId: string): Promise<{ success: boolean }> => {
     console.log(`Accepting offer with ID: ${offerId}`);
     // Real implementation:
-    // const response = await apiClient.post(API_ENDPOINTS.EXCHANGE_ORDERS, { offerId });
-    // return response.data;
+    // return await apiClient.post(API_ENDPOINTS.EXCHANGE_ORDERS, { offerId });
 
     // Mock implementation:
     return new Promise(resolve => setTimeout(() => resolve({ success: true }), 1000));
@@ -82,8 +83,8 @@ export const P2PService = {
   getTradeStats: async (): Promise<TradeStats> => {
     console.log('Fetching trade stats...');
     // Real implementation:
-    // const response = await apiClient.get(API_ENDPOINTS.P2P_STATS); // Assuming an endpoint exists
-    // return response.data;
+    // const P2P_STATS_ENDPOINT = '/p2p/stats'; // Assuming an endpoint exists
+    // return await apiClient.get(P2P_STATS_ENDPOINT);
 
     // Mock implementation:
     return new Promise(resolve => setTimeout(() => resolve(MOCKED_STATS), 1000));
