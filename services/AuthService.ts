@@ -17,7 +17,6 @@ interface RegisterData {
  */
 export const AuthService = {
   login: async (email: string, password: string): Promise<{ token: string; user: User }> => {
-    try {
       // apiClient.post now returns the JSON data directly
       return await apiClient.post(API_ENDPOINTS.LOGIN, { email, password });
     } catch (error) {

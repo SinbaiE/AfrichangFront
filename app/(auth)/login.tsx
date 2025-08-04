@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import {apiClient} from
 import {
   View,
   Text,
@@ -11,8 +12,6 @@ import {
   Alert,
   ActivityIndicator,
 } from "react-native"
-import apiClient from "@/services/apiClient"
-import {API_ENDPOINTS} from "@/configuration/api"
 import { LinearGradient } from "expo-linear-gradient"
 import { Ionicons } from "@expo/vector-icons"
 import { useAuth } from "@contexts/AuthContext"
@@ -34,15 +33,13 @@ export default function LoginScreen() {
 
     setIsLoading(true);
      try {
-
-      const response = await apiClient.post(API_ENDPOINTS.LOGIN)
-      // const response = await fetch('http://localhost:5000/api/auth', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify({ email, password }),
-      // });
+      const response = await fetch('http://localhost:5000/api/auth', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
       if (!response.ok) {
         const errorData = await response.json();
