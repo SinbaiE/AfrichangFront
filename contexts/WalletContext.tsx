@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import type { Wallet, Currency } from "@/types"
 import { useAuth } from "./AuthContext"
-import * as SecureStore from "expo-secure-store"
+import { WalletService } from "@/services/WalletService"
 
 interface WalletContextType {
   wallets: Wallet[]
@@ -27,24 +27,22 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const [totalBalanceUSD, setTotalBalanceUSD] = useState(0)
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && user) {
       refreshWallets()
       loadCurrencies()
     }
-  }, [isAuthenticated])
+  }, [isAuthenticated, user])
 
   const refreshWallets = async () => {
     setIsLoading(true)
     try {
-      const token = await SecureStore.getItemAsync("auth_token")
-      const response = await fetch("/api/wallets", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      const data = await response.json()
-      setWallets(data.wallets)
-      setTotalBalanceUSD(data.totalBalanceUSD)
+      // The service uses an interceptor for the token, so we don't need to pass it
+      const { wallets, totalBalanceUSD } = await WalletService.getUserWallets()
+      setWallets(wallets)
+      setTotalBalanceUSD(totalBalanceUSD)
     } catch (error) {
       console.error("Failed to load wallets:", error)
+      // Optionally, set an error state to show in the UI
     } finally {
       setIsLoading(false)
     }
@@ -52,8 +50,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 
   const loadCurrencies = async () => {
     try {
-      const response = await fetch("/api/currencies")
-      const data = await response.json()
+      const data = await WalletService.getCurrencies()
       setCurrencies(data)
     } catch (error) {
       console.error("Failed to load currencies:", error)
@@ -61,21 +58,15 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   }
 
   const createWallet = async (currencyCode: string) => {
+    if (!user) {
+      throw new Error("User must be authenticated to create a wallet.")
+    }
     try {
-      const token = await SecureStore.getItemAsync("auth_token")
-      const response = await fetch("/api/wallets", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ currencyCode }),
-      })
-
-      if (response.ok) {
-        await refreshWallets()
-      }
+      await WalletService.createWallet(user.id, currencyCode)
+      // Refresh the wallet list to show the new wallet
+      await refreshWallets()
     } catch (error) {
+      // Re-throw to be handled by the calling component
       throw error
     }
   }

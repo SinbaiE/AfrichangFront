@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import type { User } from "@/types"
 import * as SecureStore from "expo-secure-store"
-import { API_BASE_URL } from "@/configuration/api"
+import { AuthService } from "@/services/AuthService" // Import the service
 
 interface AuthContextType {
   user: User | null
@@ -12,8 +12,8 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>
   register: (userData: RegisterData) => Promise<void>
   logout: () => Promise<void>
-  updateProfile: (data: Partial<User>) => Promise<void>
-  uploadAvatar: (imageUri: string) => Promise<string>
+  updateProfile: (data: Partial<User>) => Promise<User>
+  uploadAvatar: (imageUri: string) => Promise<{ avatarUrl: string }>
 }
 
 interface RegisterData {
@@ -31,43 +31,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  // useEffect(() => {
-  //   checkAuthStatus()
-  // }, [])
+  useEffect(() => {
+    checkAuthStatus()
+  }, [])
 
-  // const checkAuthStatus = async () => {
-  //   try {
-  //     const token = await SecureStore.getItemAsync("auth_token")
-  //     if (token) {
-  //       const userData = await fetchUserProfile(token)
-  //       setUser(userData)
-  //     }
-  //   } catch (error) {
-  //     console.error("Auth check failed:", error)
-  //     await SecureStore.deleteItemAsync("auth_token")
-  //   } finally {
-  //     setIsLoading(false)
-  //   }
-  // }
+  const checkAuthStatus = async () => {
+    setIsLoading(true)
+    try {
+      const token = await SecureStore.getItemAsync("auth_token")
+      if (token) {
+        // Token exists, verify it by fetching profile
+        const userData = await AuthService.fetchUserProfile()
+        setUser(userData)
+      }
+    } catch (error) {
+      // Token is invalid or fetch failed
+      console.error("Auth check failed:", error)
+      await SecureStore.deleteItemAsync("auth_token")
+      setUser(null)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const login = async (email: string, password: string) => {
     setIsLoading(true)
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.message || "Erreur de connexion")
-      }
-
-      await SecureStore.setItemAsync("auth_token", data.token)
-      setUser(data.user)
+      const { token, user } = await AuthService.login(email, password)
+      await SecureStore.setItemAsync("auth_token", token)
+      setUser(user)
     } catch (error) {
+      // Re-throw the error to be caught by the UI component
       throw error
     } finally {
       setIsLoading(false)
@@ -77,20 +71,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = async (userData: RegisterData) => {
     setIsLoading(true)
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userData),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.message || "Erreur d'inscription")
-      }
-
-      await SecureStore.setItemAsync("auth_token", data.token)
-      setUser(data.user)
+      const { token, user } = await AuthService.register(userData)
+      await SecureStore.setItemAsync("auth_token", token)
+      setUser(user)
     } catch (error) {
       throw error
     } finally {
@@ -100,38 +83,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     try {
-      const token = await SecureStore.getItemAsync("auth_token")
-      if (token) {
-        await fetch(`${API_BASE_URL}/auth/logout`, {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-        })
-      }
+      await AuthService.logout()
     } catch (error) {
       console.error("Logout error:", error)
     } finally {
-      // await SecureStore.deleteItemAsync("auth_token")
+      await SecureStore.deleteItemAsync("auth_token")
       setUser(null)
     }
   }
 
-  const updateProfile = async (data: Partial<User>) => {
+  const updateProfile = async (data: Partial<User>): Promise<User> => {
     try {
-      const token = await SecureStore.getItemAsync("auth_token")
-      const response = await fetch(`${API_BASE_URL}/user/profile`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(data),
-      })
-
-      if (!response.ok) {
-        throw new Error("Erreur de mise à jour du profil")
-      }
-
-      const updatedUser = await response.json()
+      const updatedUser = await AuthService.updateProfile(data)
       setUser(updatedUser)
       return updatedUser
     } catch (error) {
@@ -139,47 +102,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const uploadAvatar = async (imageUri: string): Promise<string> => {
+  const uploadAvatar = async (imageUri: string): Promise<{ avatarUrl: string }> => {
     try {
-      const token = await SecureStore.getItemAsync("auth_token")
-
-      const formData = new FormData()
-      formData.append("avatar", {
-        uri: imageUri,
-        type: "image/jpeg",
-        name: "avatar.jpg",
-      } as any)
-
-      const response = await fetch(`${API_BASE_URL}/user/avatar`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      })
-
-      if (!response.ok) {
-        throw new Error("Erreur d'upload de l'avatar")
-      }
-
-      const data = await response.json()
-      return data.avatarUrl
+      // This service call now returns an object { avatarUrl: string }
+      const result = await AuthService.uploadAvatar(imageUri)
+      // Optionally update user profile if the new URL is not automatically reflected
+      // For now, just return the result as the component might handle it.
+      return result
     } catch (error) {
       throw error
     }
-  }
-
-  const fetchUserProfile = async (token: string): Promise<User> => {
-    const response = await fetch(`${API_BASE_URL}/user/profile`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-
-    if (!response.ok) {
-      throw new Error("Token invalide")
-    }
-
-    return response.json()
   }
 
   return (
