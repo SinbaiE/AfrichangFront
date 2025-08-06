@@ -1,5 +1,5 @@
 // Configuration API pour AfriChange
-export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || "http://localhost:5000/api/auth"
+export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || "http://192.168.158.159:5000/api"
 
 export const API_ENDPOINTS = {
   // Authentication
@@ -17,6 +17,7 @@ export const API_ENDPOINTS = {
 
   // Exchange
   EXCHANGE: "/exchange",
+  EXECUTE_EXCHANGE: "/exchange/execute",
   EXCHANGE_RATES: "/exchange-rates",
 
   // Deposits & Withdrawals
@@ -26,6 +27,10 @@ export const API_ENDPOINTS = {
   // KYC
   KYC: "/kyc",
   KYC_UPLOAD: "/kyc/upload",
+
+  // Notifications
+  NOTIFICATIONS: "/notifications",
+  NOTIFICATIONS_REGISTER: "/notifications/register",
 
   // User Management
   USERS: "/users",
