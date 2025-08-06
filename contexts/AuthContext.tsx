@@ -1,9 +1,15 @@
 "use client"
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
-import type { User } from "@/types"
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  type ReactNode,
+} from "react"
 import * as SecureStore from "expo-secure-store"
-import { AuthService } from "@/services/AuthService" // Import the service
+import { AuthService } from "@/services/AuthService"
+import type { User } from "@/types"
 
 interface AuthContextType {
   user: User | null
@@ -27,25 +33,25 @@ interface RegisterData {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState<boolean>(true)
 
-  // useEffect(() => {
-  //   checkAuthStatus()
-  // }, [])
+  useEffect(() => {
+    checkAuthStatus()
+  }, [])
 
   const checkAuthStatus = async () => {
     setIsLoading(true)
     try {
       const token = await SecureStore.getItemAsync("auth_token")
       if (token) {
-        // Token exists, verify it by fetching profile
         const userData = await AuthService.fetchUserProfile()
         setUser(userData)
+      } else {
+        setUser(null)
       }
     } catch (error) {
-      // Token is invalid or fetch failed
       console.error("Auth check failed:", error)
       await SecureStore.deleteItemAsync("auth_token")
       setUser(null)
@@ -57,11 +63,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string) => {
     setIsLoading(true)
     try {
+      console.log("🔐 Tentative de connexion avec :", { email, password });
       const { token, user } = await AuthService.login(email, password)
       await SecureStore.setItemAsync("auth_token", token)
       setUser(user)
     } catch (error) {
-      // Re-throw the error to be caught by the UI component
+      console.error("Login failed:", error)
       throw error
     } finally {
       setIsLoading(false)
@@ -75,6 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await SecureStore.setItemAsync("auth_token", token)
       setUser(user)
     } catch (error) {
+      console.error("Register failed:", error)
       throw error
     } finally {
       setIsLoading(false)
@@ -92,24 +100,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const updateProfile = async (data: Partial<User>): Promise<User> => {
+  const updateProfile = async (data: Partial<User>) => {
     try {
       const updatedUser = await AuthService.updateProfile(data)
       setUser(updatedUser)
       return updatedUser
     } catch (error) {
+      console.error("Profile update failed:", error)
       throw error
     }
   }
 
-  const uploadAvatar = async (imageUri: string): Promise<{ avatarUrl: string }> => {
+  const uploadAvatar = async (imageUri: string) => {
     try {
-      // This service call now returns an object { avatarUrl: string }
       const result = await AuthService.uploadAvatar(imageUri)
-      // Optionally update user profile if the new URL is not automatically reflected
-      // For now, just return the result as the component might handle it.
       return result
     } catch (error) {
+      console.error("Upload avatar failed:", error)
       throw error
     }
   }
@@ -135,7 +142,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export const useAuth = () => {
   const context = useContext(AuthContext)
   if (!context) {
-    throw new Error("useAuth must be used within AuthProvider")
+    throw new Error("useAuth must be used within an AuthProvider")
   }
   return context
 }

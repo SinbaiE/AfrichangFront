@@ -33,12 +33,12 @@ export function ExchangeProvider({ children }: { children: ReactNode }) {
   const [rates, setRates] = useState<ExchangeRate[]>([])
   const [isLoading, setIsLoading] = useState(false)
 
-  useEffect(() => {
-    loadRates()
-    // Actualiser les taux toutes les 30 secondes
-    const interval = setInterval(loadRates, 30000)
-    return () => clearInterval(interval)
-  }, [])
+  // useEffect(() => {
+  //   loadRates()
+  //   // Actualiser les taux toutes les 30 secondes
+  //   const interval = setInterval(loadRates, 30000)
+  //   return () => clearInterval(interval)
+  // }, [])
 
   const loadRates = async () => {
     setIsLoading(true)

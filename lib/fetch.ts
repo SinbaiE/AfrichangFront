@@ -28,7 +28,11 @@ export async function authorizedFetch(url: string, options: FetchOptions = {}): 
   }
 
   // Merge default headers with custom headers from options
-  const headers = { ...defaultHeaders, ...options.headers };
+  const headers: Record<string, string> = {
+  ...defaultHeaders,
+  ...(options.headers as Record<string, string>),
+};
+
 
   // For multipart/form-data, we need to let the browser set the Content-Type
   if (options.body instanceof FormData) {
@@ -36,6 +40,7 @@ export async function authorizedFetch(url: string, options: FetchOptions = {}): 
   }
 
   const config: RequestInit = {
+  
     ...options,
     headers,
   };

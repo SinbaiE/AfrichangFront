@@ -1,60 +1,40 @@
 "use client"
 
+import { View, Text, TextInput, Pressable, Alert, ActivityIndicator, StyleSheet, TouchableOpacity } from "react-native"
 import { useState } from "react"
-import {apiClient} from
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  SafeAreaView,
-  Alert,
-  ActivityIndicator,
-} from "react-native"
 import { LinearGradient } from "expo-linear-gradient"
+import { useRouter } from "expo-router"
+import { useAuth } from "@/contexts/AuthContext"
+import { SafeAreaView } from "react-native-safe-area-context"
 import { Ionicons } from "@expo/vector-icons"
-import { useAuth } from "@contexts/AuthContext"
-import { router } from "expo-router"
 
 export default function LoginScreen() {
+  const router = useRouter()
   const { login } = useAuth()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert('Erreur', 'Tous les champs sont requis.');
-      return;
+      Alert.alert("Erreur", "Tous les champs sont requis.")
+      return
     }
-    console.log(email,password)
-
-    setIsLoading(true);
-     try {
-      const response = await fetch('http://localhost:5000/api/auth', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Erreur lors de la connexion');
-      }
-
-      Alert.alert('Succès', 'Connexion réussie.');
-      router.replace('/page');
+    setIsLoading(true)
+    try {
+      console.log(email,password)
+      // process.exit()
+      await login(email, password)
+      Alert.alert("Succès", "Connexion réussie.")
+      router.replace("/page")
     } catch (error: any) {
-      Alert.alert('Erreur', error.message || 'Une erreur est survenue');
+      console.error("Erreur de connexion:", error)
+      Alert.alert("Erreur", error?.message || "Échec de la connexion.")
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
-
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -113,7 +93,7 @@ export default function LoginScreen() {
 
         <View style={styles.divider}>
           <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>OU</Text>
+          <Text style={styles.dividerText}>OU</Text>
           <View style={styles.dividerLine} />
         </View>
 
@@ -172,8 +152,8 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 30,
     paddingTop: 40,
-    borderTopLeftRadius:30,
-    borderTopRightRadius:30,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
   },
   formTitle: {
     fontSize: 24,
@@ -212,7 +192,7 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   forgotPasswordText: {
-    color: "#764ba",
+    color: "#764ba2",
     fontSize: 14,
     fontWeight: "500",
   },

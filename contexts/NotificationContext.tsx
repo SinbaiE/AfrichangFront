@@ -42,10 +42,10 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const [notifications, setNotifications] = useState<NotificationData[]>([])
   const [isLoading, setIsLoading] = useState(false)
 
-  useEffect(() => {
-    loadNotifications()
-    setupNotificationListeners()
-  }, [])
+  // useEffect(() => {
+  //   loadNotifications()
+  //   setupNotificationListeners()
+  // }, [])
 
   const loadNotifications = async () => {
     setIsLoading(true)

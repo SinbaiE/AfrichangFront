@@ -1,47 +1,58 @@
+const API_BASE_URL = 'http://localhost:5000';
 
-import { authorizedFetch } from '@/lib/fetch';
-
-/**
- * A simple API client that uses the authorizedFetch utility
- * to make requests. This provides a consistent interface for
- * making API calls throughout the application.
- */
 const apiClient = {
-  get: (url: string, options = {}) => {
-    return authorizedFetch(url, { ...options, method: 'GET' });
-  },
-
-  post: (url: string, data: any, options = {}) => {
-    return authorizedFetch(url, {
-      ...options,
-      method: 'POST',
-      body: JSON.stringify(data),
+  get: async (url: string) => {
+    const response = await fetch(`${API_BASE_URL}${url}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
+    return response.json();
   },
 
-  put: (url: string, data: any, options = {}) => {
-    return authorizedFetch(url, {
-      ...options,
+  post: async (url: string, data: any) => {
+  console.log("🔧 POST request to:", `${API_BASE_URL}${url}`);
+  console.log("📦 Data:", data);
+
+  const response = await fetch(`${API_BASE_URL}${url}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Erreur lors de la requête POST');
+  }
+
+  return response.json();
+},
+
+  put: async (url: string, data: any) => {
+    const response = await fetch(`${API_BASE_URL}${url}`, {
       method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify(data),
     });
+    return response.json();
   },
 
-  delete: (url: string, options = {}) => {
-    return authorizedFetch(url, { ...options, method: 'DELETE' });
-  },
-
-  // A special method for multipart/form-data uploads
-  postFormData: (url: string, formData: FormData, options = {}) => {
-    return authorizedFetch(url, {
-      ...options,
+  postFormData: async (url: string, formData: FormData) => {
+    const response = await fetch(`${API_BASE_URL}${url}`, {
       method: 'POST',
       body: formData,
     });
+    return response.json();
   },
 };
 
-// export default apiClient;
+export default apiClient;
+
 
 // import * as SecureStore from "expo-secure-store"
 // import { API_BASE_URL } from "@/configuration/api"
