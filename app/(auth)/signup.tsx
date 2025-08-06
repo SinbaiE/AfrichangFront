@@ -110,21 +110,19 @@ export default function SignupScreen() {
     if (!validateForm()) return
     setIsLoading(true)
     try {
-      // Simulate registration
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
-      // await register({ // Uncomment and implement actual registration logic
-      //   firstName: form.firstName,
-      //   lastName: form.lastName,
-      //   email: form.email,
-      //   phone: form.phone,
-      //   country: form.country,
-      //   password: form.password,
-      // })
-      Alert.alert("Compte créé !", "Votre compte a été créé avec succès.", [
+      await register({
+        firstName: form.firstName,
+        lastName: form.lastName,
+        email: form.email,
+        phone: form.phone,
+        country: form.country,
+        password: form.password,
+      })
+      Alert.alert("Compte créé !", "Votre compte a été créé avec succès. Vous allez être redirigé pour la vérification d'identité.", [
         { text: "Continuer", onPress: () => router.push("/(auth)/kyc") },
       ])
     } catch (error: any) {
-      Alert.alert("Erreur", error.message || "Erreur lors de la création du compte")
+      Alert.alert("Erreur d'inscription", error.message || "Une erreur est survenue lors de la création du compte")
     } finally {
       setIsLoading(false)
     }
@@ -324,17 +322,19 @@ export default function SignupScreen() {
           {renderCurrentStep()}
 
           <TouchableOpacity
-            style={[styles.button, isLoading ? styles.buttonDisabled : styles.buttonEnabled]}
+            style={[styles.button, (isLoading || !form.acceptTerms) ? styles.buttonDisabled : styles.buttonEnabled]}
             onPress={handleNext}
-            disabled={isLoading}
+            disabled={isLoading || !form.acceptTerms}
           >
-            {isLoading ? (
-              <ActivityIndicator color="white" />
-            ) : (
-              <Text style={styles.buttonText}>
-                {currentStep === 3 ? "Créer mon compte" : "Continuer"}
-              </Text>
-            )}
+            <LinearGradient colors={!form.acceptTerms ? ["#ccc", "#aaa"] : ["#667eea", "#764ba2"]} style={styles.buttonGradient}>
+              {isLoading ? (
+                <ActivityIndicator color="white" />
+              ) : (
+                <Text style={styles.buttonText}>
+                  {currentStep === 3 ? "Créer mon compte" : "Continuer"}
+                </Text>
+              )}
+            </LinearGradient>
           </TouchableOpacity>
 
           <View style={styles.footer}>
@@ -378,6 +378,13 @@ export default function SignupScreen() {
 }
 
 const styles = StyleSheet.create({
+    buttonGradient: {
+    width: '100%',
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 15,
+  },
   safeArea: {
     flex: 1,
     backgroundColor: "#f8fafc", // Light background for the whole screen
@@ -555,9 +562,9 @@ const styles = StyleSheet.create({
   button: {
     marginTop: 32,
     borderRadius: 15,
-    paddingVertical: 16,
+    height: 50,
     alignItems: "center",
-    overflow: "hidden",
+    justifyContent: 'center'
   },
   buttonEnabled: {
     // LinearGradient will handle background
