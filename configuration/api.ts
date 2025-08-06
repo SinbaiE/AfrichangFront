@@ -1,4 +1,18 @@
 // Configuration API pour AfriChange
+
+/**
+ * The base URL for the API.
+ *
+ * --- IMPORTANT ---
+ * To connect from a physical device or emulator, this URL must be the local IP address
+ * of the machine running your backend server.
+ *
+ * It is highly recommended to use an environment variable for this.
+ * Create a file named `.env` in the root of the project and add the following line:
+ * EXPO_PUBLIC_API_URL=http://<YOUR_LOCAL_IP>:5000/api
+ *
+ * Then, restart the Expo development server.
+ */
 export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || "http://192.168.158.159:5000/api"
 
 export const API_ENDPOINTS = {
