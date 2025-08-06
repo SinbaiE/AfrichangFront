@@ -1,4 +1,5 @@
 "use client"
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface WebhookEvent {
   id: string
@@ -231,7 +232,9 @@ class WebhookService {
   private generateSignature(data: any, secret: string): string {
     // Implémentation simplifiée - en production, utiliser HMAC-SHA256
     const payload = JSON.stringify(data)
-    return `sha256=${btoa(payload + secret)}`
+    // btoa is not available in React Native, using a simple base64-like encoding for demonstration
+    // For production, a proper base64 library should be used.
+    return `sha256=${Buffer.from(payload + secret).toString('base64')}`
   }
 
   private getRetryDelay(attempt: number): number {
@@ -259,8 +262,7 @@ class WebhookService {
 
   private async saveEndpoints(): Promise<void> {
     try {
-      // En production, sauvegarder en base de données
-      localStorage.setItem("webhook_endpoints", JSON.stringify(this.endpoints))
+      await AsyncStorage.setItem("webhook_endpoints", JSON.stringify(this.endpoints))
     } catch (error) {
       console.error("Failed to save endpoints:", error)
     }
@@ -268,16 +270,15 @@ class WebhookService {
 
   private async saveEventLog(event: WebhookEvent): Promise<void> {
     try {
-      // En production, sauvegarder en base de données
-      const logs = JSON.parse(localStorage.getItem("webhook_logs") || "[]")
+      const logsJson = await AsyncStorage.getItem("webhook_logs")
+      const logs = logsJson ? JSON.parse(logsJson) : []
       logs.push(event)
 
-      // Garder seulement les 1000 derniers logs
       if (logs.length > 1000) {
         logs.splice(0, logs.length - 1000)
       }
 
-      localStorage.setItem("webhook_logs", JSON.stringify(logs))
+      await AsyncStorage.setItem("webhook_logs", JSON.stringify(logs))
     } catch (error) {
       console.error("Failed to save event log:", error)
     }
@@ -286,7 +287,7 @@ class WebhookService {
   // Chargement initial
   async initialize(): Promise<void> {
     try {
-      const saved = localStorage.getItem("webhook_endpoints")
+      const saved = await AsyncStorage.getItem("webhook_endpoints")
       if (saved) {
         this.endpoints = JSON.parse(saved)
       }
@@ -296,22 +297,23 @@ class WebhookService {
   }
 
   // Statistiques
-  getEventLogs(): WebhookEvent[] {
+  async getEventLogs(): Promise<WebhookEvent[]> {
     try {
-      return JSON.parse(localStorage.getItem("webhook_logs") || "[]")
+      const logsJson = await AsyncStorage.getItem("webhook_logs")
+      return logsJson ? JSON.parse(logsJson) : []
     } catch {
       return []
     }
   }
 
-  getStats(): {
+  async getStats(): Promise<{
     totalEndpoints: number
     activeEndpoints: number
     totalEvents: number
     successfulEvents: number
     failedEvents: number
-  } {
-    const logs = this.getEventLogs()
+  }> {
+    const logs = await this.getEventLogs()
 
     return {
       totalEndpoints: this.endpoints.length,

@@ -2,6 +2,7 @@ import { Stack, SplashScreen } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useFonts } from 'expo-font';
 import { useEffect } from 'react';
+import { API_BASE_URL } from '@/configuration/api';
 
 import { AuthProvider } from "@contexts/AuthContext";
 import { ThemeProvider } from "@contexts/ThemeContext";
@@ -20,6 +21,7 @@ import { PerformanceProvider } from "@contexts/PerformanceContext";
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  console.log(`🚀 API Base URL: ${API_BASE_URL}`);
   const [fontsLoaded, fontError] = useFonts({
     'SpaceMono-Regular': require('../assets/fonts/SpaceMono-Regular.ttf'),
   });

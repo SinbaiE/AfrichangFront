@@ -2,7 +2,7 @@
 import { Ionicons } from "@expo/vector-icons"
 import { createContext, useContext, useState, type ReactNode } from "react"
 import type { KYCData, KYCStep, PersonalInfo, DocumentInfo, SelfieVerification } from "@/types/kyc"
-import * as SecureStore from "expo-secure-store"
+import { KYCService } from "@/services/KYCService"
 
 interface KYCContextType {
   kycData: KYCData
@@ -138,23 +138,12 @@ export function KYCProvider({ children }: { children: ReactNode }) {
   const submitKYC = async () => {
     setIsLoading(true)
     try {
-      const token = await SecureStore.getItemAsync("auth_token")
-      const response = await fetch("/api/kyc/submit", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(kycData),
-      })
-
-      if (response.ok) {
-        setKycData((prev) => ({
-          ...prev,
-          status: "pending_review",
-          submittedAt: new Date().toISOString(),
-        }))
-      }
+      await KYCService.submitKYC(kycData)
+      setKycData((prev) => ({
+        ...prev,
+        status: "pending_review",
+        submittedAt: new Date().toISOString(),
+      }))
     } catch (error) {
       throw error
     } finally {
