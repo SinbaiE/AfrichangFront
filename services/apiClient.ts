@@ -1,43 +1,12 @@
-import { authorizedFetch } from '@/lib/fetch';
+import authHttpClient from '@/lib/authHttpClient';
 
 /**
- * A simple API client that uses the authorizedFetch utility
- * to make requests. This provides a consistent interface for
- * making API calls throughout the application.
+ * This is the single entry point for all API calls in the application.
+ * It exports the authenticated HTTP client, which includes automatic
+ * token injection and error handling.
+ *
+ * All services should import this client to make API requests.
  */
-const apiClient = {
-  get: (url: string, options = {}) => {
-    return authorizedFetch(url, { ...options, method: 'GET' });
-  },
-
-  post: (url: string, data: any, options = {}) => {
-    return authorizedFetch(url, {
-      ...options,
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
-  },
-
-  put: (url: string, data: any, options = {}) => {
-    return authorizedFetch(url, {
-      ...options,
-      method: 'PUT',
-      body: JSON.stringify(data),
-    });
-  },
-
-  delete: (url: string, options = {}) => {
-    return authorizedFetch(url, { ...options, method: 'DELETE' });
-  },
-
-  // A special method for multipart/form-data uploads
-  postFormData: (url: string, formData: FormData, options = {}) => {
-    return authorizedFetch(url, {
-      ...options,
-      method: 'POST',
-      body: formData,
-    });
-  },
-};
+const apiClient = authHttpClient;
 
 export default apiClient;
