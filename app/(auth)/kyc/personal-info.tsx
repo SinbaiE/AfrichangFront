@@ -1,12 +1,14 @@
 "use client"
 
 import { useState } from "react"
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView } from "react-native"
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView, Platform } from "react-native"
 import { LinearGradient } from "expo-linear-gradient"
 import { Ionicons } from "@expo/vector-icons"
 import { router } from "expo-router"
 import { useKYC } from "@/contexts/KYCContext"
 import type { PersonalInfo } from "@/types/kyc"
+import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import { format } from 'date-fns';
 
 const countries = [
   { code: "SN", name: "Sénégal", flag: "🇸🇳" },
@@ -40,9 +42,25 @@ export default function PersonalInfoScreen() {
   const { kycData, updatePersonalInfo, nextStep } = useKYC()
   const [formData, setFormData] = useState<PersonalInfo>(kycData.personalInfo)
   const [errors, setErrors] = useState<Partial<PersonalInfo>>({})
+
+  // State for the date picker
+  const [date, setDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
   const [showCountryPicker, setShowCountryPicker] = useState(false)
   const [showOccupationPicker, setShowOccupationPicker] = useState(false)
   const [showIncomePicker, setShowIncomePicker] = useState(false)
+
+  const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
+    const currentDate = selectedDate || date;
+    setShowDatePicker(Platform.OS === 'ios'); // On iOS, the picker is a modal
+    setDate(currentDate);
+
+    if (event.type === "set") {
+      const formattedDate = format(currentDate, 'yyyy-MM-dd');
+      updateField("dateOfBirth", formattedDate);
+    }
+  };
 
   const validateForm = (): boolean => {
     const newErrors: Partial<PersonalInfo> = {}
@@ -156,14 +174,30 @@ export default function PersonalInfoScreen() {
           {/* Date de naissance */}
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Date de naissance *</Text>
-            <TouchableOpacity style={[styles.input, styles.dateInput, errors.dateOfBirth && styles.inputError]}>
+            <TouchableOpacity
+              style={[styles.input, styles.dateInput, errors.dateOfBirth && styles.inputError]}
+              onPress={() => setShowDatePicker(true)}
+            >
               <Text style={[styles.dateText, !formData.dateOfBirth && styles.placeholderText]}>
-                {formData.dateOfBirth || "JJ/MM/AAAA"}
+                {formData.dateOfBirth ? format(new Date(formData.dateOfBirth), 'dd/MM/yyyy') : "JJ/MM/AAAA"}
               </Text>
               <Ionicons name="calendar-outline" size={20} color="#64748b" />
             </TouchableOpacity>
             {errors.dateOfBirth && <Text style={styles.errorText}>{errors.dateOfBirth}</Text>}
           </View>
+
+          {showDatePicker && (
+            <DateTimePicker
+              testID="dateTimePicker"
+              value={date}
+              mode="date"
+              is24Hour={true}
+              display="default"
+              onChange={onDateChange}
+              maximumDate={new Date(new Date().setFullYear(new Date().getFullYear() - 18))} // User must be 18+
+            />
+          )}
+
 
           {/* Nationalité */}
           <View style={styles.inputContainer}>
