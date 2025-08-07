@@ -13,8 +13,13 @@ interface RegisterData {
 
 export const AuthService = {
   login: async (email: string, password: string): Promise<{ token: string; user: User }> => {
-  console.log("🟡 [AuthService.login] Données envoyées :", { email, password });
-  return await apiClient.post(API_ENDPOINTS.LOGIN, { email, password }); // ✅ OK maintenant
+    try {
+      // apiClient.post now returns the JSON data directly
+      return await apiClient.post(API_ENDPOINTS.LOGIN, { email, password });
+    } catch (error) {
+      console.error("Login error:", error);
+      throw error;
+    }
   },
 
 

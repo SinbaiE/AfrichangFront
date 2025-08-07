@@ -1,5 +1,19 @@
 // Configuration API pour AfriChange
-export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || "http://localhost:5000/api"
+
+/**
+ * The base URL for the API.
+ *
+ * --- IMPORTANT ---
+ * To connect from a physical device or emulator, this URL must be the local IP address
+ * of the machine running your backend server.
+ *
+ * It is highly recommended to use an environment variable for this.
+ * Create a file named `.env` in the root of the project and add the following line:
+ * EXPO_PUBLIC_API_URL=http://<YOUR_LOCAL_IP>:5000/api
+ *
+ * Then, restart the Expo development server.
+ */
+export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || "http://192.168.158.159:5000/api"
 
 export const API_ENDPOINTS = {
   // Authentication
@@ -17,6 +31,7 @@ export const API_ENDPOINTS = {
 
   // Exchange
   EXCHANGE: "/exchange",
+  EXECUTE_EXCHANGE: "/exchange/execute",
   EXCHANGE_RATES: "/exchange-rates",
 
   // Deposits & Withdrawals
@@ -26,6 +41,10 @@ export const API_ENDPOINTS = {
   // KYC
   KYC: "/kyc",
   KYC_UPLOAD: "/kyc/upload",
+
+  // Notifications
+  NOTIFICATIONS: "/notifications",
+  NOTIFICATIONS_REGISTER: "/notifications/register",
 
   // User Management
   USERS: "/users",

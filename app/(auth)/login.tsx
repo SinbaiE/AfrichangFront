@@ -1,7 +1,19 @@
 "use client"
 
-import { View, Text, TextInput, Pressable, Alert, ActivityIndicator, StyleSheet, TouchableOpacity } from "react-native"
+// import { View, Text, TextInput, Pressable, Alert, ActivityIndicator, StyleSheet, TouchableOpacity } from "react-native"
 import { useState } from "react"
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  // SafeAreaView,
+  Alert,
+  ActivityIndicator,
+} from "react-native"
+import apiClient from "@/services/apiClient"
+import {API_ENDPOINTS} from "@/configuration/api"
 import { LinearGradient } from "expo-linear-gradient"
 import { useRouter } from "expo-router"
 import { useAuth } from "@/contexts/AuthContext"
@@ -21,13 +33,27 @@ export default function LoginScreen() {
       Alert.alert("Erreur", "Tous les champs sont requis.")
       return
     }
-    setIsLoading(true)
-    try {
-      console.log(email,password)
-      // process.exit()
-      await login(email, password)
-      Alert.alert("Succès", "Connexion réussie.")
-      router.replace("/page")
+    console.log(email,password)
+
+    setIsLoading(true);
+     try {
+
+      const response = await apiClient.post(API_ENDPOINTS.LOGIN)
+      // const response = await fetch('http://localhost:5000/api/auth', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({ email, password }),
+      // });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Erreur lors de la connexion');
+      }
+
+      Alert.alert('Succès', 'Connexion réussie.');
+      router.replace('/page');
     } catch (error: any) {
       console.error("Erreur de connexion:", error)
       Alert.alert("Erreur", error?.message || "Échec de la connexion.")

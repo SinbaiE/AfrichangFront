@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import * as Notifications from "expo-notifications"
 import * as Device from "expo-device"
+import { NotificationService } from "@/services/NotificationService"
 
 interface NotificationData {
   id: string
@@ -50,9 +51,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const loadNotifications = async () => {
     setIsLoading(true)
     try {
-      // Charger les notifications depuis le serveur ou le stockage local
-      const response = await fetch("/api/notifications")
-      const data = await response.json()
+      const data = await NotificationService.getNotifications()
       setNotifications(data.notifications || [])
     } catch (error) {
       console.error("Erreur chargement notifications:", error)
@@ -131,18 +130,15 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     }
 
     try {
-      const token = await Notifications.getExpoPushTokenAsync({
+      const expoPushToken = await Notifications.getExpoPushTokenAsync({
         projectId: "your-expo-project-id", // Remplacer par votre project ID
       })
 
-      // Envoyer le token au serveur
-      await fetch("/api/notifications/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: token.data }),
-      })
+      if (expoPushToken.data) {
+        await NotificationService.registerPushToken(expoPushToken.data)
+      }
 
-      return token.data
+      return expoPushToken.data
     } catch (error) {
       console.error("Erreur enregistrement push token:", error)
       return null

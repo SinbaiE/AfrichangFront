@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import type { ExchangeRate, Transaction } from "@/types"
-import * as SecureStore from "expo-secure-store"
+import { ExchangeService } from "@/services/ExchangeService"
 
 interface ExchangeContextType {
   rates: ExchangeRate[]
@@ -43,8 +43,7 @@ export function ExchangeProvider({ children }: { children: ReactNode }) {
   const loadRates = async () => {
     setIsLoading(true)
     try {
-      const response = await fetch("/api/exchange/rates")
-      const data = await response.json()
+      const data = await ExchangeService.getInternalRates()
       setRates(data)
     } catch (error) {
       console.error("Failed to load exchange rates:", error)
@@ -78,18 +77,7 @@ export function ExchangeProvider({ children }: { children: ReactNode }) {
 
   const executeExchange = async (params: ExchangeParams): Promise<Transaction> => {
     try {
-      const token = await SecureStore.getItemAsync("auth_token")
-      const response = await fetch("/api/exchange/execute", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(params),
-      })
-
-      const transaction = await response.json()
-      return transaction
+      return await ExchangeService.executeExchange(params);
     } catch (error) {
       throw error
     }
