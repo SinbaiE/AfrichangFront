@@ -12,8 +12,6 @@ import {
   Alert,
   ActivityIndicator,
 } from "react-native"
-import apiClient from "@/services/apiClient"
-import {API_ENDPOINTS} from "@/configuration/api"
 import { LinearGradient } from "expo-linear-gradient"
 import { useRouter } from "expo-router"
 import { useAuth } from "@/contexts/AuthContext"
@@ -22,45 +20,35 @@ import { Ionicons } from "@expo/vector-icons"
 
 export default function LoginScreen() {
   const router = useRouter()
-  const { login } = useAuth()
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const { login } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async () => {
     if (!email || !password) {
       Alert.alert("Erreur", "Tous les champs sont requis.")
       return
     }
-    console.log(email,password)
 
     setIsLoading(true);
-     try {
+    try {
+      // Correctly use the login function from the AuthContext
+      await login(email, password);
 
-      const response = await apiClient.post(API_ENDPOINTS.LOGIN)
-      // const response = await fetch('http://localhost:5000/api/auth', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify({ email, password }),
-      // });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Erreur lors de la connexion');
-      }
-
+      // On success, AuthContext will set isAuthenticated to true,
+      // which should trigger navigation in the root layout.
+      // Or we can navigate manually.
       Alert.alert('Succès', 'Connexion réussie.');
-      router.replace('/page');
+      router.push(''); // Navigate to the main app screen
     } catch (error: any) {
-      console.error("Erreur de connexion:", error)
-      Alert.alert("Erreur", error?.message || "Échec de la connexion.")
+      // The error is already processed by the service/client layer
+      Alert.alert('Erreur de connexion', error.message || 'Une erreur inconnue est survenue.');
     } finally {
       setIsLoading(false)
     }
-  }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
