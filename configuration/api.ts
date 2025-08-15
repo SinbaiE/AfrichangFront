@@ -13,12 +13,12 @@
  *
  * Then, restart the Expo development server.
  */
-export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || "http://172.30.144.1:5000/api"
+export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || "http://172.27.64.1:5000/api"
 
 export const API_ENDPOINTS = {
   // Authentication
   LOGIN: "/auth",
-  REGISTER: "/auth/register",
+  REGISTER: "/users",
   PROFILE: "/auth/profile",
   LOGOUT: "/auth/logout",
 
@@ -39,6 +39,7 @@ export const API_ENDPOINTS = {
   WITHDRAWALS: "/withdrawals",
 
   // KYC
+  KYC_CREATE:"/submit",
   KYC: "/kyc",
   KYC_UPLOAD: "/kyc/upload",
 

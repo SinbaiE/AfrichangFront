@@ -34,7 +34,7 @@ const documentTypes = [
 
 export default function DocumentUploadScreen() {
   const { kycData, updateDocumentInfo, nextStep, previousStep } = useKYC()
-  const [selectedDocType, setSelectedDocType] = useState(kycData.documentInfo.type || "national_id")
+  const [selectedDocType,  setSelectedDocType] = useState(kycData.documentInfo.type || "national_id")
   const [frontImage, setFrontImage] = useState(kycData.documentInfo.frontImage || null)
   const [backImage, setBackImage] = useState(kycData.documentInfo.backImage || null)
   const [isUploading, setIsUploading] = useState(false)

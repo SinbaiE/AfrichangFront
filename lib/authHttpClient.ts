@@ -48,7 +48,7 @@ const authHttpClient: AuthHttpClient = {
 
   post: async (url, data, options = {}) => {
     console.log('la vie de djonie',url)
-    console.log('la vie de djonie',data)
+    console.log('la vie de djonie data',data)
     console.log('la vie de djonie',options)
     const token = await SecureStore.getItemAsync('auth_token');
     const response = await httpClient(url, {

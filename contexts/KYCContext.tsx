@@ -136,6 +136,7 @@ export function KYCProvider({ children }: { children: ReactNode }) {
   }
 
   const submitKYC = async () => {
+    console.log('la vie de djonie',kycData);
     setIsLoading(true)
     try {
       await KYCService.submitKYC(kycData)

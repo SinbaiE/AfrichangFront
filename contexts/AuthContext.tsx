@@ -25,8 +25,8 @@ interface AuthContextType {
 interface RegisterData {
   email: string
   password: string
-  firstName: string
-  lastName: string
+  FirstName: string
+  LastName: string
   phone: string
   country: string
 }

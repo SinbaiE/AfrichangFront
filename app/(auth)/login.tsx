@@ -41,7 +41,7 @@ export default function LoginScreen() {
       // which should trigger navigation in the root layout.
       // Or we can navigate manually.
       Alert.alert('Succès', 'Connexion réussie.');
-      router.push(''); // Navigate to the main app screen
+      router.replace("/(auth)/dasboardUsers"); // Navigate to the main app screen
     } catch (error: any) {
       // The error is already processed by the service/client layer
       Alert.alert('Erreur de connexion', error.message || 'Une erreur inconnue est survenue.');
@@ -53,9 +53,9 @@ export default function LoginScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <LinearGradient colors={["#667eea", "#764ba2"]} style={styles.header}>
-        <View style={styles.logoContainer}>
+        {/* <View style={styles.logoContainer}>
           <Text style={styles.logoText}>🌍</Text>
-        </View>
+        </View> */}
         <Text style={styles.title}>AfriChange</Text>
         <Text style={styles.subtitle}>Échangez vos devises africaines facilement</Text>
       </LinearGradient>
@@ -105,6 +105,13 @@ export default function LoginScreen() {
           </LinearGradient>
         </TouchableOpacity>
 
+        <View style={styles.signupContainer}>
+          <Text style={styles.signupText}>Pas encore de compte ? </Text>
+          <TouchableOpacity onPress={() => router.push("/(auth)/dasboardUsers")}>
+            <Text style={styles.signupLink}>S'inscrire</Text>
+          </TouchableOpacity>
+        </View>
+
         <View style={styles.divider}>
           <View style={styles.dividerLine} />
           <Text style={styles.dividerText}>OU</Text>
@@ -115,13 +122,6 @@ export default function LoginScreen() {
           <Ionicons name="finger-print-outline" size={24} color='red' />
           <Text style={styles.biometricText}>Connexion biométrique</Text>
         </TouchableOpacity>
-
-        <View style={styles.signupContainer}>
-          <Text style={styles.signupText}>Pas encore de compte ? </Text>
-          <TouchableOpacity onPress={() => router.push("/(auth)/signup")}>
-            <Text style={styles.signupLink}>S'inscrire</Text>
-          </TouchableOpacity>
-        </View>
       </View>
     </SafeAreaView>
   )
@@ -133,15 +133,17 @@ const styles = StyleSheet.create({
     backgroundColor: "#f8fafc",
   },
   header: {
-    alignItems: "center",
-    paddingVertical: 60,
-    paddingHorizontal: 20,
-    borderBottomLeftRadius: -30,
-    borderBottomRightRadius: -30,
+    height: 180, // Increased height to accommodate logo and branding
+    justifyContent: "space-between", // Distribute content vertically
+    paddingTop: 32,
+    paddingHorizontal: 20, // Adjusted padding
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+    overflow: "hidden",
   },
   logoContainer: {
-    width: 80,
-    height: 80,
+    width: 50,
+    height: 50,
     backgroundColor: "rgba(255,255,255,0.2)",
     borderRadius: 40,
     alignItems: "center",
@@ -149,18 +151,21 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   logoText: {
-    fontSize: 40,
+    fontSize: 30,
   },
   title: {
     fontSize: 32,
     fontWeight: "bold",
     color: "#fff",
     marginBottom: 10,
+    marginLeft:30,
+    marginTop:20,
   },
   subtitle: {
     fontSize: 16,
     color: "rgba(255,255,255,0.9)",
     textAlign: "center",
+    marginBottom:10,
   },
   form: {
     flex: 1,

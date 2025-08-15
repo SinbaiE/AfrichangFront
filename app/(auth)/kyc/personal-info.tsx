@@ -1,12 +1,14 @@
 "use client"
 
 import { useState } from "react"
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView } from "react-native"
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView, Platform, Alert } from "react-native"
 import { LinearGradient } from "expo-linear-gradient"
 import { Ionicons } from "@expo/vector-icons"
 import { router } from "expo-router"
 import { useKYC } from "@/contexts/KYCContext"
 import type { PersonalInfo } from "@/types/kyc"
+// import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import { format } from 'date-fns';
 
 const countries = [
   { code: "SN", name: "Sénégal", flag: "🇸🇳" },
@@ -40,69 +42,192 @@ export default function PersonalInfoScreen() {
   const { kycData, updatePersonalInfo, nextStep } = useKYC()
   const [formData, setFormData] = useState<PersonalInfo>(kycData.personalInfo)
   const [errors, setErrors] = useState<Partial<PersonalInfo>>({})
+  const [isValidating, setIsValidating] = useState(false)
+
+  // State for the date picker
+  // const [date, setDate] = useState(new Date());
+  // const [showDatePicker, setShowDatePicker] = useState(false);
+
   const [showCountryPicker, setShowCountryPicker] = useState(false)
   const [showOccupationPicker, setShowOccupationPicker] = useState(false)
   const [showIncomePicker, setShowIncomePicker] = useState(false)
 
+  // const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
+  //   const currentDate = selectedDate || date;
+  //   setShowDatePicker(Platform.OS === 'ios'); // On iOS, the picker is a modal
+  //   setDate(currentDate);
+
+  //   if (event.type === "set") {
+  //     const formattedDate = format(currentDate, 'yyyy-MM-dd');
+  //     updateField("dateOfBirth", formattedDate);
+  //   }
+  // };
+
   const validateForm = (): boolean => {
     const newErrors: Partial<PersonalInfo> = {}
 
-    if (!formData.firstName.trim()) {
+    // Validation du prénom
+    if (!formData.firstName || !formData.firstName.trim()) {
       newErrors.firstName = "Le prénom est requis"
+    } else if (formData.firstName.trim().length < 2) {
+      newErrors.firstName = "Le prénom doit contenir au moins 2 caractères"
+    } else if (!/^[a-zA-ZÀ-ÿ\s-]+$/.test(formData.firstName.trim())) {
+      newErrors.firstName = "Le prénom ne doit contenir que des lettres"
     }
 
-    if (!formData.lastName.trim()) {
+    // Validation du nom
+    if (!formData.lastName || !formData.lastName.trim()) {
       newErrors.lastName = "Le nom est requis"
+    } else if (formData.lastName.trim().length < 2) {
+      newErrors.lastName = "Le nom doit contenir au moins 2 caractères"
+    } else if (!/^[a-zA-ZÀ-ÿ\s-]+$/.test(formData.lastName.trim())) {
+      newErrors.lastName = "Le nom ne doit contenir que des lettres"
     }
 
-    if (!formData.dateOfBirth) {
-      newErrors.dateOfBirth = "La date de naissance est requise"
-    }
+    // Validation date de naissance (temporairement commentée)
+    // if (!formData.dateOfBirth) {
+    //   newErrors.dateOfBirth = "La date de naissance est requise"
+    // } else {
+    //   const birthDate = new Date(formData.dateOfBirth);
+    //   const today = new Date();
+    //   const age = today.getFullYear() - birthDate.getFullYear();
+    //   if (age < 18) {
+    //     newErrors.dateOfBirth = "Vous devez avoir au moins 18 ans"
+    //   }
+    // }
 
+    // Validation nationalité
     if (!formData.nationality) {
       newErrors.nationality = "La nationalité est requise"
     }
 
-    if (!formData.phoneNumber.trim()) {
+    // Validation téléphone
+    if (!formData.phoneNumber || !formData.phoneNumber.trim()) {
       newErrors.phoneNumber = "Le numéro de téléphone est requis"
-    } else if (!/^\+[1-9]\d{1,14}$/.test(formData.phoneNumber)) {
-      newErrors.phoneNumber = "Format de téléphone invalide"
+    } else {
+      // Format international plus flexible
+      const phoneRegex = /^\+[1-9]\d{7,14}$/
+      if (!phoneRegex.test(formData.phoneNumber.replace(/\s/g, ''))) {
+        newErrors.phoneNumber = "Format de téléphone invalide (ex: +225 07 00 00 00)"
+      }
     }
 
-    if (!formData.address.trim()) {
+    // Validation adresse
+    if (!formData.address || !formData.address.trim()) {
       newErrors.address = "L'adresse est requise"
+    } else if (formData.address.trim().length < 10) {
+      newErrors.address = "L'adresse doit être plus détaillée (minimum 10 caractères)"
     }
 
-    if (!formData.city.trim()) {
+    // Validation ville
+    if (!formData.city || !formData.city.trim()) {
       newErrors.city = "La ville est requise"
+    } else if (formData.city.trim().length < 2) {
+      newErrors.city = "Le nom de ville doit contenir au moins 2 caractères"
+    } else if (!/^[a-zA-ZÀ-ÿ\s-]+$/.test(formData.city.trim())) {
+      newErrors.city = "Le nom de ville ne doit contenir que des lettres"
     }
 
+    // Validation profession
     if (!formData.occupation) {
       newErrors.occupation = "La profession est requise"
     }
 
+    // Validation revenu
     if (!formData.monthlyIncome) {
       newErrors.monthlyIncome = "Le revenu mensuel est requis"
     }
 
+    // Validation code postal (optionnel mais si rempli)
+    if (formData.postalCode && formData.postalCode.trim()) {
+      if (!/^\d{4,6}$/.test(formData.postalCode.trim())) {
+        newErrors.postalCode = "Le code postal doit contenir entre 4 et 6 chiffres"
+      }
+    }
+
     setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
+    const isValid = Object.keys(newErrors).length === 0
+
+    // Log pour debug
+    if (!isValid) {
+      console.log('Erreurs de validation:', newErrors)
+    } else {
+      console.log('Formulaire valide, données:', formData)
+    }
+
+    return isValid
   }
 
-  const handleNext = () => {
-    if (validateForm()) {
-      updatePersonalInfo(formData)
-      nextStep()
-      router.push("/(auth)/kyc/document-uplaod")
+  const handleNext = async () => {
+    setIsValidating(true)
+    
+    try {
+      const isValid = validateForm()
+      
+      if (isValid) {
+        console.log('Formulaire valide, navigation en cours...')
+        
+        // Nettoyer les données avant de les sauvegarder
+        const cleanedData = {
+          ...formData,
+          firstName: formData.firstName.trim(),
+          lastName: formData.lastName.trim(),
+          address: formData.address.trim(),
+          city: formData.city.trim(),
+          phoneNumber: formData.phoneNumber.replace(/\s/g, ''), // Supprimer les espaces
+          postalCode: formData.postalCode?.trim() || '',
+        }
+        
+        updatePersonalInfo(cleanedData)
+        nextStep()
+        router.push("/(auth)/kyc/document-uplaod") // Correction du typo "uplaod"
+      } else {
+        console.log('Formulaire invalide, erreurs:', errors)
+        
+        // Afficher une alerte avec les erreurs
+        const errorMessages = Object.values(errors).filter(Boolean)
+        Alert.alert(
+          "Formulaire invalide", 
+          "Veuillez corriger les erreurs suivantes :\n\n" + errorMessages.join('\n'),
+          [{ text: "OK", style: "default" }]
+        )
+        
+        // Scroll vers le premier champ avec erreur
+        // Vous pouvez ajouter des refs pour scroll automatiquement
+      }
+    } catch (error) {
+      console.error('Erreur lors de la validation:', error)
+      Alert.alert("Erreur", "Une erreur est survenue lors de la validation du formulaire")
+    } finally {
+      setIsValidating(false)
     }
   }
 
   const updateField = (field: keyof PersonalInfo, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
+    
     // Clear error when user starts typing
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }))
     }
+  }
+
+  // Fonction utilitaire pour formater le numéro de téléphone
+  const formatPhoneNumber = (value: string) => {
+    // Supprimer tout sauf les chiffres et le +
+    const cleaned = value.replace(/[^\d+]/g, '')
+    
+    // Assurer que ça commence par +
+    if (!cleaned.startsWith('+')) {
+      return '+' + cleaned
+    }
+    
+    return cleaned
+  }
+
+  const handlePhoneChange = (value: string) => {
+    const formatted = formatPhoneNumber(value)
+    updateField("phoneNumber", formatted)
   }
 
   return (
@@ -136,6 +261,8 @@ export default function PersonalInfoScreen() {
                 value={formData.firstName}
                 onChangeText={(value) => updateField("firstName", value)}
                 placeholderTextColor="#999"
+                autoCapitalize="words"
+                autoCorrect={false}
               />
               {errors.firstName && <Text style={styles.errorText}>{errors.firstName}</Text>}
             </View>
@@ -148,22 +275,27 @@ export default function PersonalInfoScreen() {
                 value={formData.lastName}
                 onChangeText={(value) => updateField("lastName", value)}
                 placeholderTextColor="#999"
+                autoCapitalize="words"
+                autoCorrect={false}
               />
               {errors.lastName && <Text style={styles.errorText}>{errors.lastName}</Text>}
             </View>
           </View>
 
-          {/* Date de naissance */}
-          <View style={styles.inputContainer}>
+          {/* Date de naissance - Commentée temporairement */}
+          {/* <View style={styles.inputContainer}>
             <Text style={styles.label}>Date de naissance *</Text>
-            <TouchableOpacity style={[styles.input, styles.dateInput, errors.dateOfBirth && styles.inputError]}>
+            <TouchableOpacity 
+              style={[styles.input, styles.dateInput, errors.dateOfBirth && styles.inputError]}
+              onPress={() => setShowDatePicker(true)}
+            >
               <Text style={[styles.dateText, !formData.dateOfBirth && styles.placeholderText]}>
-                {formData.dateOfBirth || "JJ/MM/AAAA"}
+                {formData.dateOfBirth ? format(new Date(formData.dateOfBirth), 'dd/MM/yyyy') : "JJ/MM/AAAA"}
               </Text>
               <Ionicons name="calendar-outline" size={20} color="#64748b" />
             </TouchableOpacity>
             {errors.dateOfBirth && <Text style={styles.errorText}>{errors.dateOfBirth}</Text>}
-          </View>
+          </View> */}
 
           {/* Nationalité */}
           <View style={styles.inputContainer}>
@@ -191,7 +323,7 @@ export default function PersonalInfoScreen() {
               style={[styles.input, errors.phoneNumber && styles.inputError]}
               placeholder="+225 07 00 00 00"
               value={formData.phoneNumber}
-              onChangeText={(value) => updateField("phoneNumber", value)}
+              onChangeText={handlePhoneChange}
               keyboardType="phone-pad"
               placeholderTextColor="#999"
             />
@@ -203,12 +335,13 @@ export default function PersonalInfoScreen() {
             <Text style={styles.label}>Adresse complète *</Text>
             <TextInput
               style={[styles.input, styles.textArea, errors.address && styles.inputError]}
-              placeholder="Votre adresse complète"
+              placeholder="Votre adresse complète (rue, quartier, etc.)"
               value={formData.address}
               onChangeText={(value) => updateField("address", value)}
               multiline
               numberOfLines={3}
               placeholderTextColor="#999"
+              autoCorrect={false}
             />
             {errors.address && <Text style={styles.errorText}>{errors.address}</Text>}
           </View>
@@ -223,6 +356,8 @@ export default function PersonalInfoScreen() {
                 value={formData.city}
                 onChangeText={(value) => updateField("city", value)}
                 placeholderTextColor="#999"
+                autoCapitalize="words"
+                autoCorrect={false}
               />
               {errors.city && <Text style={styles.errorText}>{errors.city}</Text>}
             </View>
@@ -230,13 +365,15 @@ export default function PersonalInfoScreen() {
             <View style={[styles.inputContainer, { flex: 1, marginLeft: 10 }]}>
               <Text style={styles.label}>Code postal</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, errors.postalCode && styles.inputError]}
                 placeholder="00000"
                 value={formData.postalCode}
                 onChangeText={(value) => updateField("postalCode", value)}
                 keyboardType="numeric"
                 placeholderTextColor="#999"
+                maxLength={6}
               />
+              {errors.postalCode && <Text style={styles.errorText}>{errors.postalCode}</Text>}
             </View>
           </View>
 
@@ -280,10 +417,16 @@ export default function PersonalInfoScreen() {
           </View>
 
           {/* Bouton suivant */}
-          <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
+          <TouchableOpacity 
+            style={[styles.nextButton, isValidating && styles.nextButtonDisabled]} 
+            onPress={handleNext}
+            disabled={isValidating}
+          >
             <LinearGradient colors={["#667eea", "#764ba2"]} style={styles.nextButtonGradient}>
-              <Text style={styles.nextButtonText}>Continuer</Text>
-              <Ionicons name="arrow-forward" size={20} color="#fff" />
+              <Text style={styles.nextButtonText}>
+                {isValidating ? "Validation..." : "Continuer"}
+              </Text>
+              {!isValidating && <Ionicons name="arrow-forward" size={20} color="#fff" />}
             </LinearGradient>
           </TouchableOpacity>
         </View>
@@ -443,6 +586,7 @@ const styles = StyleSheet.create({
   },
   inputError: {
     borderColor: "#ef4444",
+    backgroundColor: "#fef2f2",
   },
   textArea: {
     height: 80,
@@ -473,6 +617,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#ef4444",
     marginTop: 5,
+    fontWeight: "500",
   },
   privacyNote: {
     flexDirection: "row",
@@ -497,6 +642,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,
+  },
+  nextButtonDisabled: {
+    opacity: 0.6,
   },
   nextButtonGradient: {
     flexDirection: "row",

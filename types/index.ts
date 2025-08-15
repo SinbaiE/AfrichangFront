@@ -3,8 +3,8 @@ export interface User {
   id: string
   email: string
   phone: string
-  firstName: string
-  lastName: string
+  FirstName: string
+  LastName: string
   country: string
   isVerified: boolean
   kycStatus: "pending" | "approved" | "rejected"

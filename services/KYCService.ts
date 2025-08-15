@@ -12,7 +12,7 @@ export const KYCService = {
    */
   submitKYC: async (kycData: KYCData): Promise<void> => {
     try {
-      await apiClient.post(`${API_ENDPOINTS.KYC}/submit`, kycData);
+      await apiClient.post(`${API_ENDPOINTS.KYC_CREATE}`, kycData);
     } catch (error) {
       console.error("Error submitting KYC data:", error);
       throw error;

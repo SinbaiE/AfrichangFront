@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react"
+import { useState,useEffect } from "react"
 import {
   View,
   Text,
@@ -24,8 +24,8 @@ import { useAuth } from "@contexts/AuthContext"
 const { width } = Dimensions.get("window")
 
 interface SignupForm {
-  firstName: string
-  lastName: string
+  FirstName: string
+  LastName: string
   email: string
   phone: string
   country: string
@@ -57,8 +57,8 @@ export default function SignupScreen() {
   const { register } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
   const [form, setForm] = useState<SignupForm>({
-    firstName: "",
-    lastName: "",
+    FirstName: "",
+    LastName: "",
     email: "",
     phone: "",
     country: "",
@@ -67,52 +67,69 @@ export default function SignupScreen() {
     acceptTerms: false,
   })
   const [errors, setErrors] = useState<Partial<SignupForm>>({})
+  const [isStepValid, setIsStepValid] = useState(false)
   const [currentStep, setCurrentStep] = useState(1)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [showCountryPicker, setShowCountryPicker] = useState(false)
 
-  const validateForm = () => {
+  useEffect(() => {
+    validateCurrentStep()
+  }, [form, currentStep])
+
+  const validateCurrentStep = () => {
     const newErrors: Partial<SignupForm> = {}
-    if (currentStep >= 1) {
-      if (!form.firstName.trim()) newErrors.firstName = "Prénom requis"
-      if (!form.lastName.trim()) newErrors.lastName = "Nom requis"
-      if (!form.country) newErrors.country = "Pays requis"
+    let isValid = true
+
+    switch (currentStep) {
+      case 1:
+        if (!form.FirstName.trim()) newErrors.FirstName = "Prénom requis"
+        if (!form.LastName.trim()) newErrors.LastName = "Nom requis"
+        if (!form.country) newErrors.country = "Pays requis"
+        isValid = !!form.FirstName.trim() && !!form.LastName.trim() && !!form.country
+        break
+      case 2:
+        if (!form.email.trim()) newErrors.email = "Email requis"
+        else if (!/\S+@\S+\.\S+/.test(form.email)) newErrors.email = "Email invalide"
+        if (!form.phone.trim()) newErrors.phone = "Téléphone requis"
+        else if (form.phone.length < 8) newErrors.phone = "Numéro trop court"
+        isValid = !!form.email.trim() && /\S+@\S+\.\S+/.test(form.email) && !!form.phone.trim() && form.phone.length >= 8
+        break
+      case 3:
+        if (!form.password) newErrors.password = "Mot de passe requis"
+        else if (form.password.length < 8) newErrors.password = "Minimum 8 caractères"
+        else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(form.password)) {
+          newErrors.password = "Doit contenir majuscule, minuscule et chiffre"
+        }
+        if (form.password !== form.confirmPassword) {
+          newErrors.confirmPassword = "Les mots de passe ne correspondent pas"
+        }
+        isValid = !!form.password && form.password.length >= 8 && /(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(form.password) && form.password === form.confirmPassword
+        break
     }
-    if (currentStep >= 2) {
-      if (!form.email.trim()) newErrors.email = "Email requis"
-      else if (!/\S+@\S+\.\S+/.test(form.email)) newErrors.email = "Email invalide"
-      if (!form.phone.trim()) newErrors.phone = "Téléphone requis"
-      else if (form.phone.length < 8) newErrors.phone = "Numéro trop court"
-    }
-    if (currentStep >= 3) {
-      if (!form.password) newErrors.password = "Mot de passe requis"
-      else if (form.password.length < 8) newErrors.password = "Minimum 8 caractères"
-      else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(form.password)) {
-        newErrors.password = "Doit contenir majuscule, minuscule et chiffre"
-      }
-      if (form.password !== form.confirmPassword) {
-        newErrors.confirmPassword = "Mots de passe différents"
-      }
-    }
+    
     setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
+    setIsStepValid(isValid)
+    return isValid
   }
 
   const handleNext = () => {
-    if (validateForm()) {
-      if (currentStep < 3) setCurrentStep(currentStep + 1)
-      else handleSignup()
+    if (validateCurrentStep()) {
+      if (currentStep < 3) {
+        setCurrentStep(currentStep + 1)
+      } else {
+        handleSignup()
+      }
     }
   }
 
   const handleSignup = async () => {
-    if (!validateForm()) return
+    if (!validateCurrentStep()) return
     setIsLoading(true)
     try {
       await register({
-        firstName: form.firstName,
-        lastName: form.lastName,
+        FirstName: form.FirstName,
+        LastName: form.LastName,
         email: form.email,
         phone: form.phone,
         country: form.country,
@@ -134,33 +151,33 @@ export default function SignupScreen() {
       <Text style={styles.stepSubtitle}>Commençons par vos informations de base</Text>
       <View>
         <Text style={styles.label}>Prénom *</Text>
-        <View style={[styles.inputWrapper, errors.firstName ? styles.inputError : styles.inputDefault]}>
+        <View style={[styles.inputWrapper, errors.FirstName ? styles.inputError : styles.inputDefault]}>
           <Ionicons name="person-outline" size={20} color="#666" style={styles.inputIcon} />
           <TextInput
             style={styles.input}
             placeholder="Votre prénom"
-            value={form.firstName}
-            onChangeText={(text) => setForm({ ...form, firstName: text })}
+            value={form.FirstName}
+            onChangeText={(text) => setForm({ ...form, FirstName: text })}
             autoCapitalize="words"
             placeholderTextColor="#999"
           />
         </View>
-        {errors.firstName && <Text style={styles.errorText}>{errors.firstName}</Text>}
+        {errors.FirstName && <Text style={styles.errorText}>{errors.FirstName}</Text>}
       </View>
       <View>
         <Text style={styles.label}>Nom *</Text>
-        <View style={[styles.inputWrapper, errors.lastName ? styles.inputError : styles.inputDefault]}>
+        <View style={[styles.inputWrapper, errors.LastName ? styles.inputError : styles.inputDefault]}>
           <Ionicons name="person-outline" size={20} color="#666" style={styles.inputIcon} />
           <TextInput
             style={styles.input}
             placeholder="Votre nom"
-            value={form.lastName}
-            onChangeText={(text) => setForm({ ...form, lastName: text })}
+            value={form.LastName}
+            onChangeText={(text) => setForm({ ...form, LastName: text })}
             autoCapitalize="words"
             placeholderTextColor="#999"
           />
         </View>
-        {errors.lastName && <Text style={styles.errorText}>{errors.lastName}</Text>}
+        {errors.LastName && <Text style={styles.errorText}>{errors.LastName}</Text>}
       </View>
       <View>
         <Text style={styles.label}>Pays de résidence *</Text>
@@ -322,11 +339,11 @@ export default function SignupScreen() {
           {renderCurrentStep()}
 
           <TouchableOpacity
-            style={[styles.button, (isLoading || !form.acceptTerms) ? styles.buttonDisabled : styles.buttonEnabled]}
+            style={[styles.button, (isLoading || !isStepValid || (currentStep === 3 && !form.acceptTerms)) ? styles.buttonDisabled : styles.buttonEnabled]}
             onPress={handleNext}
-            disabled={isLoading || !form.acceptTerms}
+            disabled={isLoading || !isStepValid || (currentStep === 3 && !form.acceptTerms)}
           >
-            <LinearGradient colors={!form.acceptTerms ? ["#ccc", "#aaa"] : ["#667eea", "#764ba2"]} style={styles.buttonGradient}>
+            <LinearGradient colors={(!isStepValid || (currentStep === 3 && !form.acceptTerms)) ? ["#D1D5DB", "#9CA3AF"] : ["#667eea", "#764ba2"]} style={styles.buttonGradient}>
               {isLoading ? (
                 <ActivityIndicator color="white" />
               ) : (

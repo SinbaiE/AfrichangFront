@@ -27,6 +27,28 @@ const CURRENCY_INFO: { [key: string]: { name: string; symbol: string; flag: stri
   ZAR: { name: "Rand Sud-Africain", symbol: "R", flag: "🇿🇦" },
 }
 
+ const code = [
+  {
+    id: "1",
+    currency: { code: "XOF" }, // Franc CFA BCEAO
+    balance: 125000000
+  },
+  {
+    id: "2",
+    currency: { code: "USD" }, // Dollar US
+    balance: 350.75
+  },
+  {
+    id: "3",
+    currency: { code: "EUR" }, // Euro
+    balance: 980
+  },
+  {
+    id: "4",
+    currency: { code: "NGN" }, // Naira Nigérian
+    balance: 120000
+  }
+];
 export default function WalletScreen({ navigation }: any) {
   const { colors } = useTheme()
   const { wallets, refreshWallets, isLoading } = useWallet()
@@ -58,8 +80,10 @@ export default function WalletScreen({ navigation }: any) {
     )
   }
 
+  
+
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+    <SafeAreaView style={[styles.container]}>
       <ScrollView
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         showsVerticalScrollIndicator={false}
@@ -72,7 +96,7 @@ export default function WalletScreen({ navigation }: any) {
         </View>
 
         <LinearGradient
-          colors={[colors.primary, "#1E40AF"]}
+          colors={["#667eea", "#764ba2"]}
           style={styles.totalBalanceCard}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
@@ -94,46 +118,12 @@ export default function WalletScreen({ navigation }: any) {
           </View>
         </LinearGradient>
 
-        <View style={styles.quickActions}>
-          <TouchableOpacity
-            style={[styles.quickActionButton, { backgroundColor: colors.success }]}
-            onPress={() => navigation.navigate("Deposit")}
-          >
-            <Ionicons name="add-circle" size={24} color="white" />
-            <Text style={styles.quickActionText}>Déposer</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.quickActionButton, { backgroundColor: colors.warning }]}
-            onPress={() => navigation.navigate("Withdraw")}
-          >
-            <Ionicons name="remove-circle" size={24} color="white" />
-            <Text style={styles.quickActionText}>Retirer</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.quickActionButton, { backgroundColor: colors.primary }]}
-            onPress={() => navigation.navigate("Exchange")}
-          >
-            <Ionicons name="swap-horizontal" size={24} color="white" />
-            <Text style={styles.quickActionText}>Échanger</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.quickActionButton, { backgroundColor: colors.info }]}
-            onPress={() => {}}
-          >
-            <Ionicons name="send" size={24} color="white" />
-            <Text style={styles.quickActionText}>Envoyer</Text>
-          </TouchableOpacity>
-        </View>
-
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>Mes devises</Text>
 
-          {wallets.length > 0 ? (
+          {code.length > 0 ? (
             <View style={styles.walletsList}>
-              {wallets.map((wallet) => {
+              {code.map((wallet) => {
                 const currencyInfo = getCurrencyInfo(wallet.currency.code)
                 return (
                   <TouchableOpacity
@@ -143,13 +133,12 @@ export default function WalletScreen({ navigation }: any) {
                   >
                     <View style={styles.walletHeader}>
                       <View style={styles.walletInfo}>
-                        <Text style={styles.walletFlag}>{currencyInfo.flag}</Text>
+                        <Ionicons name="wallet-outline" size={34} color={colors.textSecondary} />
                         <View style={styles.walletDetails}>
-                          <Text style={[styles.walletCurrency, { color: colors.text }]}>{wallet.currency.code}</Text>
+                          <Text style={[styles.walletCurrency, { color: colors.text }]}>{wallet.currency.code }</Text>
                           <Text style={[styles.walletName, { color: colors.textSecondary }]}>{currencyInfo.name}</Text>
                         </View>
-                      </View>
-                      <View style={styles.walletBalance}>
+                        <View style={styles.walletBalance}>
                         <Text style={[styles.walletAmount, { color: colors.text }]}>
                           {wallet.balance.toLocaleString("fr-FR")}
                         </Text>
@@ -157,32 +146,32 @@ export default function WalletScreen({ navigation }: any) {
                           {currencyInfo.symbol}
                         </Text>
                       </View>
+                      </View>
                     </View>
 
                     <View style={styles.walletActions}>
                       <TouchableOpacity
                         style={[styles.walletActionButton, { borderColor: colors.border }]}
+                        onPress={() => navigation.navigate("Exchange")}
+                      >
+                       <Text style={styles.walletFlag}>{currencyInfo.flag}</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={[styles.walletActionButton, { borderColor: colors.border }]}
                         onPress={() => navigation.navigate("Deposit", { currency: wallet.currency.code })}
                       >
-                        <Ionicons name="add" size={16} color={colors.primary} />
-                        <Text style={[styles.walletActionText, { color: colors.primary }]}>Déposer</Text>
+                        <Ionicons name="add" size={16} color={colors.success} />
+                        <Text style={[styles.walletActionText, { color: colors.success }]}>Déposer</Text>
                       </TouchableOpacity>
 
                       <TouchableOpacity
                         style={[styles.walletActionButton, { borderColor: colors.border }]}
                         onPress={() => navigation.navigate("Withdraw", { currency: wallet.currency.code })}
                       >
-                        <Ionicons name="remove" size={16} color={colors.warning} />
-                        <Text style={[styles.walletActionText, { color: colors.warning }]}>Retirer</Text>
+                        <Ionicons name="remove" size={16} color={colors.error} />
+                        <Text style={[styles.walletActionText, { color: colors.error }]}>Retirer</Text>
                       </TouchableOpacity>
 
-                      <TouchableOpacity
-                        style={[styles.walletActionButton, { borderColor: colors.border }]}
-                        onPress={() => navigation.navigate("Exchange")}
-                      >
-                        <Ionicons name="swap-horizontal" size={16} color={colors.info} />
-                        <Text style={[styles.walletActionText, { color: colors.info }]}>Échanger</Text>
-                      </TouchableOpacity>
                     </View>
                   </TouchableOpacity>
                 )
@@ -212,6 +201,7 @@ export default function WalletScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor:"#f8fafc",
   },
   header: {
     flexDirection: "row",
@@ -264,27 +254,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  quickActions: {
-    flexDirection: "row",
-    paddingHorizontal: 20,
-    marginBottom: 32,
-    justifyContent: "space-between",
-  },
-  quickActionButton: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 12,
-    borderRadius: 12,
-    marginHorizontal: 4,
-  },
-  quickActionText: {
-    color: "white",
-    fontSize: 12,
-    fontWeight: "600",
-    marginLeft: 4,
-  },
   section: {
     paddingHorizontal: 20,
   },
@@ -299,6 +268,11 @@ const styles = StyleSheet.create({
   walletCard: {
     padding: 20,
     borderRadius: 16,
+    // shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 3,
   },
   walletHeader: {
     flexDirection: "row",
@@ -319,7 +293,7 @@ const styles = StyleSheet.create({
   },
   walletCurrency: {
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: "400",
     marginBottom: 4,
   },
   walletName: {
@@ -345,7 +319,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    padding: 8,
+    margin:5,
     borderRadius: 8,
     borderWidth: 1,
   },
@@ -353,6 +327,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "500",
     marginLeft: 4,
+    color:"green",
   },
   emptyState: {
     padding: 40,
