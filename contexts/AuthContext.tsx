@@ -15,7 +15,10 @@ interface AuthContextType {
   user: User | null
   isLoading: boolean
   isAuthenticated: boolean
-  login: (email: string, password: string) => Promise<void>
+  requires2FA: boolean;
+  tempToken: string | null;
+  login: (email: string, password: string) => Promise<{ requires2FA: boolean }>;
+  verifyAndLogin: (code: string) => Promise<void>;
   register: (userData: RegisterData) => Promise<void>
   logout: () => Promise<void>
   updateProfile: (data: Partial<User>) => Promise<User>
@@ -36,6 +39,8 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [requires2FA, setRequires2FA] = useState<boolean>(false);
+  const [tempToken, setTempToken] = useState<string | null>(null);
 
   useEffect(() => {
     checkAuthStatus()
@@ -61,19 +66,44 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }
 
   const login = async (email: string, password: string) => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      console.log("🔐 Tentative de connexion avec :", { email, password });
-      const { token, user } = await AuthService.login(email, password)
-      await SecureStore.setItemAsync("auth_token", token)
-      setUser(user)
+      const response = await AuthService.login(email, password);
+      if (response.requiresTwoFactor) {
+        setTempToken(response.tempToken);
+        setRequires2FA(true);
+        return { requires2FA: true };
+      } else {
+        setUser(response.user);
+        // The token is already stored by AuthService, no need to do it here
+        return { requires2FA: false };
+      }
     } catch (error) {
-      console.error("Login failed:", error)
-      throw error
+      console.error("Login failed:", error);
+      throw error;
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
+
+  const verifyAndLogin = async (code: string) => {
+    if (!tempToken) {
+      throw new Error("Temporary token not available for 2FA verification.");
+    }
+    setIsLoading(true);
+    try {
+      const { user } = await AuthService.verify2FA(tempToken, code);
+      setUser(user);
+      // Reset 2FA state
+      setRequires2FA(false);
+      setTempToken(null);
+    } catch (error) {
+      console.error("2FA verification failed:", error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const register = async (userData: RegisterData) => {
     setIsLoading(true)
@@ -97,6 +127,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       await SecureStore.deleteItemAsync("auth_token")
       setUser(null)
+      setRequires2FA(false);
+      setTempToken(null);
     }
   }
 
@@ -127,7 +159,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         user,
         isLoading,
         isAuthenticated: !!user,
+        requires2FA,
+        tempToken,
         login,
+        verifyAndLogin,
         register,
         logout,
         updateProfile,

@@ -21,6 +21,9 @@ export const API_ENDPOINTS = {
   REGISTER: "/users",
   PROFILE: "/auth/profile",
   LOGOUT: "/auth/logout",
+  VERIFY_2FA: "/auth/verify-2fa",
+  SETUP_2FA: "/auth/setup-2fa",
+  ENABLE_2FA: "/auth/enable-2fa",
 
   // Wallets
   WALLETS: "/wallets",

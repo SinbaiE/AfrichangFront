@@ -28,25 +28,27 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert("Erreur", "Tous les champs sont requis.")
-      return
+      Alert.alert("Erreur", "Tous les champs sont requis.");
+      return;
     }
 
     setIsLoading(true);
     try {
-      // Correctly use the login function from the AuthContext
-      await login(email, password);
+      const result = await login(email, password);
 
-      // On success, AuthContext will set isAuthenticated to true,
-      // which should trigger navigation in the root layout.
-      // Or we can navigate manually.
-      Alert.alert('Succès', 'Connexion réussie.');
-      router.replace("/(auth)/dasboardUsers"); // Navigate to the main app screen
+      if (result.requires2FA) {
+        // 2FA is required, navigate to the verification screen
+        Alert.alert("Vérification requise", "Veuillez entrer votre code d'authentification.");
+        router.push("/(auth)/verify-2fa");
+      } else {
+        // Login was successful without 2FA
+        Alert.alert('Succès', 'Connexion réussie.');
+        router.replace("/(tabs)/"); // Navigate to the main app screen
+      }
     } catch (error: any) {
-      // The error is already processed by the service/client layer
       Alert.alert('Erreur de connexion', error.message || 'Une erreur inconnue est survenue.');
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   };
 
